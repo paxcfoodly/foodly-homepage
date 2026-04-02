@@ -1,0 +1,1148 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Foodly — 식품 제조 통합 관리</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+:root{
+  --teal:#1D9E75;--teal-dk:#0F6E56;--teal-lt:#E1F5EE;--teal-md:#9FE1CB;
+  --purple:#534AB7;--purple-lt:#EEEDFE;
+  --amber:#BA7517;--amber-lt:#FAEEDA;--amber-md:#FAC775;
+  --red:#A32D2D;--red-lt:#FCEBEB;--red-md:#F09595;
+  --dark:#1E1E1E;--gray:#5F5E5A;--gray-lt:#F1EFE8;--gray-md:#B4B2A9;--gray-bd:#D3D1C7;
+  --white:#fff;--bg:#F8F7F3;
+  --nav-w:220px;
+  --font:'Noto Sans KR',sans-serif;--mono:'JetBrains Mono',monospace;
+  --radius:10px;--radius-sm:7px;--shadow:0 1px 4px rgba(0,0,0,.08);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font);background:var(--bg);color:var(--dark);font-size:14px;line-height:1.6}
+input,select,textarea,button{font-family:var(--font)}
+a{text-decoration:none;color:inherit}
+
+/* ── 스크롤바 */
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--gray-bd);border-radius:3px}
+
+/* ══════════════════════════════
+   AUTH LAYOUT
+══════════════════════════════ */
+.auth-page{display:grid;grid-template-columns:1fr 1fr;min-height:100vh}
+.auth-left{background:var(--teal-dk);display:flex;flex-direction:column;padding:48px 52px}
+.auth-logo{font-size:22px;font-weight:700;color:#fff;margin-bottom:0}
+.auth-logo em{color:var(--teal-md);font-style:normal}
+.auth-hero{flex:1;display:flex;flex-direction:column;justify-content:center;gap:24px}
+.auth-tagline{font-size:28px;font-weight:700;color:#fff;line-height:1.4}
+.auth-tagline em{color:var(--teal-md);font-style:normal}
+.auth-features{display:flex;flex-direction:column;gap:14px}
+.af{display:flex;align-items:flex-start;gap:12px}
+.af-icon{width:32px;height:32px;border-radius:8px;background:rgba(255,255,255,.15);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.af-title{font-size:13px;font-weight:700;color:#fff;margin-bottom:2px}
+.af-desc{font-size:12px;color:rgba(255,255,255,.65)}
+.auth-foot{font-size:11px;color:rgba(255,255,255,.4);margin-top:auto}
+.auth-right{display:flex;align-items:center;justify-content:center;padding:48px}
+.auth-form{width:100%;max-width:380px}
+.auth-form-title{font-size:24px;font-weight:700;color:var(--dark);margin-bottom:4px}
+.auth-form-sub{font-size:13px;color:var(--gray);margin-bottom:28px}
+.form-link{color:var(--teal);cursor:pointer;font-weight:500}
+.fl{margin-bottom:14px}
+.fl-lbl{font-size:12px;font-weight:500;color:var(--gray);margin-bottom:5px;display:flex;align-items:center;gap:4px}
+.req{color:#E24B4A;font-size:11px}
+.finput{width:100%;padding:10px 12px;border:1px solid var(--gray-bd);border-radius:var(--radius-sm);font-size:14px;outline:none;transition:border-color .15s}
+.finput:focus{border-color:var(--teal);box-shadow:0 0 0 3px var(--teal-lt)}
+.finput.error{border-color:var(--red-md);background:#fff8f8}
+.finput.ok{border-color:var(--teal)}
+.err-msg{font-size:11px;color:var(--red);margin-top:4px;display:flex;align-items:center;gap:4px}
+.ok-msg{font-size:11px;color:var(--teal-dk);margin-top:4px}
+.hint{font-size:11px;color:var(--gray-md);margin-top:3px}
+.pw-wrap{position:relative}
+.pw-eye{position:absolute;right:10px;top:50%;transform:translateY(-50%);cursor:pointer;color:var(--gray-md);font-size:12px;border:none;background:transparent;padding:3px 5px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:10px 20px;border-radius:var(--radius-sm);font-size:14px;font-weight:500;cursor:pointer;border:1px solid transparent;transition:all .15s}
+.btn-primary{background:var(--teal);color:#fff;border-color:var(--teal)}
+.btn-primary:hover{background:var(--teal-dk)}
+.btn-ghost{background:var(--gray-lt);color:var(--dark);border-color:var(--gray-bd)}
+.btn-ghost:hover{background:var(--gray-bd)}
+.btn-outline{background:#fff;color:var(--teal);border-color:var(--teal)}
+.btn-outline:hover{background:var(--teal-lt)}
+.btn-danger{background:var(--red-lt);color:var(--red);border-color:var(--red-md)}
+.btn-danger:hover{background:var(--red-md);color:#fff}
+.btn-w{width:100%}
+.btn-lg{padding:12px 24px;font-size:15px}
+.btn-sm{padding:6px 12px;font-size:12px}
+.btn-kakao{background:#FEE500;color:#191919;border-color:#FEE500}
+.btn-kakao:hover{background:#F0D800}
+.divider{display:flex;align-items:center;gap:12px;color:var(--gray-md);font-size:12px;margin:16px 0}
+.divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--gray-bd)}
+.plan-cards-auth{display:flex;flex-direction:column;gap:10px;margin-top:20px}
+.plan-card-a{border-radius:var(--radius);padding:14px 16px;border:1px solid rgba(255,255,255,.18);cursor:pointer}
+.plan-card-a.rec{border-color:var(--teal-md);background:rgba(159,225,203,.15)}
+.plan-name-a{font-size:13px;font-weight:700;color:#fff;margin-bottom:3px}
+.plan-price-a{font-size:13px;color:var(--teal-md);font-weight:500}
+.plan-feat-a{font-size:11px;color:rgba(255,255,255,.6);margin-top:4px}
+.plan-badge-a{font-size:10px;font-weight:700;padding:2px 7px;border-radius:3px;background:var(--teal-md);color:#04342C;margin-left:6px}
+
+/* ══════════════════════════════
+   APP LAYOUT
+══════════════════════════════ */
+.app{display:flex;height:100vh;overflow:hidden}
+.nav{width:var(--nav-w);background:var(--white);border-right:1px solid var(--gray-bd);display:flex;flex-direction:column;flex-shrink:0;overflow-y:auto}
+.nav-logo{padding:20px 20px 16px;font-size:18px;font-weight:700;color:var(--dark);border-bottom:1px solid var(--gray-bd)}
+.nav-logo em{color:var(--teal);font-style:normal}
+.nav-section{padding:16px 12px 4px;font-size:10px;font-weight:700;color:var(--gray-md);letter-spacing:.8px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:var(--radius-sm);cursor:pointer;font-size:13px;font-weight:500;color:var(--gray);margin:1px 8px;transition:all .12s}
+.nav-item:hover{background:var(--gray-lt);color:var(--dark)}
+.nav-item.active{background:var(--teal-lt);color:var(--teal-dk)}
+.nav-item svg{flex-shrink:0;opacity:.7}
+.nav-item.active svg{opacity:1}
+.nav-foot{margin-top:auto;padding:16px 12px;border-top:1px solid var(--gray-bd);font-size:12px;color:var(--gray)}
+.main{flex:1;overflow-y:auto;display:flex;flex-direction:column}
+.page-head{background:var(--white);border-bottom:1px solid var(--gray-bd);padding:16px 28px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.page-title{font-size:20px;font-weight:700;color:var(--dark)}
+.page-sub{font-size:12px;color:var(--gray-md);margin-top:2px}
+.page-actions{display:flex;gap:8px;align-items:center}
+.page-body{padding:24px 28px;display:flex;flex-direction:column;gap:16px}
+
+/* ══════════════════════════════
+   CARDS & GRIDS
+══════════════════════════════ */
+.card{background:var(--white);border:1px solid var(--gray-bd);border-radius:var(--radius);box-shadow:var(--shadow)}
+.card-head{padding:13px 18px;border-bottom:1px solid var(--gray-bd);display:flex;align-items:center;justify-content:space-between}
+.card-title{font-size:13px;font-weight:700;color:var(--dark)}
+.card-body{padding:16px 18px}
+.kgrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.kgrid-5{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px}
+.kpi{background:var(--white);border:1px solid var(--gray-bd);border-radius:var(--radius);padding:14px 18px}
+.kpi.danger{border-color:var(--red-md);background:var(--red-lt)}
+.kpi.warn{border-color:var(--amber-md);background:var(--amber-lt)}
+.kpi.good{border-color:var(--teal-md);background:var(--teal-lt)}
+.kl{font-size:11px;color:var(--gray);margin-bottom:5px}
+.kv{font-size:24px;font-weight:700;line-height:1.1}
+.ku{font-size:14px;font-weight:400;color:var(--gray)}
+.ks{font-size:11px;margin-top:4px;color:var(--gray-md)}
+.ks.up{color:var(--teal-dk)} .ks.dn{color:var(--red)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}
+
+/* ══════════════════════════════
+   BADGES
+══════════════════════════════ */
+.bdg{display:inline-block;font-size:10px;font-weight:700;padding:2px 8px;border-radius:4px}
+.b-ok{background:var(--teal-lt);color:#085041}
+.b-warn{background:var(--amber-lt);color:#633806}
+.b-danger{background:var(--red-lt);color:#791F1F}
+.b-purple{background:var(--purple-lt);color:#3C3489}
+.b-gray{background:var(--gray-lt);color:var(--gray);border:1px solid var(--gray-bd)}
+.b-run{background:var(--teal-lt);color:#085041}
+
+/* ══════════════════════════════
+   TABLES
+══════════════════════════════ */
+.tbl{width:100%;border-collapse:collapse;font-size:13px;table-layout:fixed}
+.tbl thead tr{background:var(--gray-lt)}
+.tbl th{padding:9px 14px;text-align:left;font-size:11px;font-weight:700;color:var(--gray);border-bottom:1px solid var(--gray-bd)}
+.tbl th.r{text-align:right}
+.tbl td{padding:10px 14px;border-bottom:1px solid var(--gray-lt);vertical-align:middle;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tbl td.r{text-align:right;font-variant-numeric:tabular-nums}
+.tbl tbody tr:hover td{background:#FAFAF8;cursor:pointer}
+.mono{font-family:var(--mono);font-size:11px;color:var(--gray)}
+.lot{font-family:var(--mono);font-size:11px;color:var(--gray)}
+
+/* ══════════════════════════════
+   ALERTS / BANNERS
+══════════════════════════════ */
+.alert{padding:10px 16px;border-radius:var(--radius-sm);font-size:13px;display:flex;align-items:center;justify-content:space-between;gap:10px}
+.alert-danger{background:var(--red-lt);border:1px solid var(--red-md);color:#7a1f1f}
+.alert-warn{background:var(--amber-lt);border:1px solid var(--amber-md);color:#5a3000}
+.alert-ok{background:var(--teal-lt);border:1px solid var(--teal-md);color:#085041}
+
+/* ══════════════════════════════
+   FORMS
+══════════════════════════════ */
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.frow3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+select{width:100%;padding:8px 10px;border:1px solid var(--gray-bd);border-radius:var(--radius-sm);font-size:13px;background:var(--white);color:var(--dark);outline:none}
+select:focus{border-color:var(--teal)}
+textarea{width:100%;padding:8px 10px;border:1px solid var(--gray-bd);border-radius:var(--radius-sm);font-size:13px;font-family:var(--font);resize:vertical;min-height:64px;outline:none}
+textarea:focus{border-color:var(--teal)}
+
+/* ══════════════════════════════
+   STEP BAR
+══════════════════════════════ */
+.step-bar{display:flex;align-items:center;background:var(--white);border:1px solid var(--gray-bd);border-radius:var(--radius);padding:14px 24px;gap:0}
+.step{display:flex;align-items:center;gap:8px;flex:1}
+.step-dot{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0}
+.sd-done{background:var(--teal);color:#fff}
+.sd-active{background:var(--dark);color:#fff}
+.sd-idle{background:var(--gray-lt);color:var(--gray-md);border:1px solid var(--gray-bd)}
+.step-name{font-size:12px;font-weight:500}
+.step-line{flex:1;height:1px;background:var(--gray-bd);margin:0 10px;max-width:60px}
+.step-line-done{background:var(--teal)}
+
+/* ══════════════════════════════
+   PROGRESS / BARS
+══════════════════════════════ */
+.bar-wrap{background:var(--gray-lt);border-radius:3px;height:7px;position:relative;overflow:hidden}
+.bar-fill{height:100%;border-radius:3px}
+.bar-safe{position:absolute;top:0;width:2px;background:#E24B4A;height:100%}
+
+/* ══════════════════════════════
+   ONBOARDING
+══════════════════════════════ */
+.ob-page{min-height:100vh;background:var(--bg);display:flex;flex-direction:column;align-items:center;padding:40px 20px}
+.ob-logo{font-size:20px;font-weight:700;color:var(--dark);margin-bottom:32px}
+.ob-logo em{color:var(--teal);font-style:normal}
+.ob-progress{width:100%;max-width:520px;margin-bottom:28px}
+.ob-steps{display:grid;grid-template-columns:repeat(3,1fr);margin-bottom:8px}
+.ob-step{display:flex;flex-direction:column;align-items:center;gap:5px}
+.ob-dot{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700}
+.od-done{background:var(--teal);color:#fff}
+.od-active{background:var(--dark);color:#fff}
+.od-idle{background:var(--gray-lt);color:var(--gray-md);border:1px solid var(--gray-bd)}
+.ob-label{font-size:12px;font-weight:500}
+.ol-done{color:var(--teal)}
+.ol-active{color:var(--dark)}
+.ol-idle{color:var(--gray-md)}
+.ob-bars{display:grid;grid-template-columns:1fr 1fr;padding:0 15px;gap:4px}
+.ob-bar{height:3px;border-radius:2px}
+.ob-done{background:var(--teal)}
+.ob-idle{background:var(--gray-lt)}
+.ob-card{background:var(--white);border:1px solid var(--gray-bd);border-radius:14px;padding:32px 36px;width:100%;max-width:520px;box-shadow:var(--shadow)}
+.ob-title{font-size:20px;font-weight:700;color:var(--dark);margin-bottom:6px}
+.ob-sub{font-size:13px;color:var(--gray);margin-bottom:24px;line-height:1.6}
+
+/* ══════════════════════════════
+   LIVE / ANIMATION
+══════════════════════════════ */
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+.live-dot{width:7px;height:7px;border-radius:50%;background:var(--teal);animation:blink 1.4s ease-in-out infinite}
+@keyframes pulse-g{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.6;transform:scale(1.2)}}
+@keyframes pulse-r{0%,100%{opacity:1}50%{opacity:.3}}
+.dot-run{background:var(--teal);animation:pulse-g 1.6s ease-in-out infinite}
+.dot-idle{background:var(--gray-md)}
+.dot-err{background:#E24B4A;animation:pulse-r 1s ease-in-out infinite}
+@keyframes recv{from{width:0}to{width:100%}}
+.recv-bar{height:3px;background:var(--gray-lt);border-radius:2px;overflow:hidden;margin-top:5px}
+.recv-fill{height:100%;background:var(--teal);animation:recv 3s linear infinite}
+@keyframes pop{0%{transform:scale(.6);opacity:0}60%{transform:scale(1.1)}100%{transform:scale(1);opacity:1}}
+.pop{animation:pop .4s ease forwards}
+@keyframes scan{0%{top:30px}100%{top:260px}}
+.scan-line{position:absolute;left:10%;right:10%;height:2px;background:var(--teal);opacity:.8;animation:scan 2s linear infinite}
+
+/* ══════════════════════════════
+   MISC
+══════════════════════════════ */
+.tag{font-size:10px;font-weight:700;padding:2px 7px;border-radius:3px}
+.t-ocr{background:var(--teal-lt);color:#085041;border:1px solid var(--teal-md)}
+.t-device{background:var(--purple-lt);color:#3C3489}
+.t-manual{background:var(--gray-lt);color:var(--gray);border:1px solid var(--gray-bd)}
+.avatar{border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0}
+.ing-chip{font-size:11px;padding:3px 8px;border-radius:4px;background:var(--gray-lt);color:var(--gray);border:1px solid var(--gray-bd)}
+input[type=range]{-webkit-appearance:none;width:100%;height:4px;border-radius:2px;background:var(--gray-lt);border:none;padding:0;box-shadow:none;outline:none}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:var(--teal);cursor:pointer}
+.hidden{display:none!important}
+.pg{display:flex;justify-content:space-between;align-items:center;padding:10px 16px;border-top:1px solid var(--gray-bd)}
+.pgb{display:flex;gap:3px}
+.pb{width:28px;height:28px;border-radius:5px;border:1px solid var(--gray-bd);background:var(--gray-lt);font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--dark);font-weight:500}
+.pb.a{background:var(--dark);color:#fff;border-color:var(--dark)}
+.tabs{display:flex;border-bottom:1px solid var(--gray-bd);padding:0 18px}
+.tab-item{font-size:13px;padding:10px 16px;cursor:pointer;border-bottom:2px solid transparent;color:var(--gray);font-weight:500;transition:all .12s}
+.tab-item:hover{color:var(--dark)}
+.tab-item.active{color:var(--teal);border-bottom-color:var(--teal)}
+.section-link{font-size:12px;color:var(--teal);cursor:pointer;font-weight:500}
+.section-link:hover{color:var(--teal-dk)}
+.verified-box{display:flex;align-items:center;gap:6px;font-size:12px;padding:7px 10px;background:var(--teal-lt);border-radius:6px;color:#085041;border:1px solid var(--teal-md);margin-top:5px}
+.fbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.search-input{height:34px;padding:0 12px;border:1px solid var(--gray-bd);border-radius:var(--radius-sm);font-size:13px;outline:none;background:var(--white);color:var(--dark);width:220px}
+.search-input:focus{border-color:var(--teal)}
+.filter-select{height:34px;padding:0 10px;border:1px solid var(--gray-bd);border-radius:var(--radius-sm);font-size:13px;background:var(--white);color:var(--dark);outline:none}
+
+/* ══════════════════════════════
+   MOBILE NAV TOGGLE BUTTON
+══════════════════════════════ */
+.nav-toggle{display:none;position:fixed;bottom:20px;right:20px;z-index:1000;width:50px;height:50px;border-radius:50%;background:var(--teal);border:none;cursor:pointer;box-shadow:0 4px 14px rgba(29,158,117,.4);align-items:center;justify-content:center;color:#fff}
+.nav-toggle svg{flex-shrink:0}
+.nav-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:998}
+.nav-overlay.open{display:block}
+
+/* ══════════════════════════════
+   RESPONSIVE — TABLET (≤900px)
+══════════════════════════════ */
+@media(max-width:900px){
+  /* Auth */
+  .auth-page{grid-template-columns:1fr}
+  .auth-left{display:none}
+  .auth-right{padding:32px 24px}
+  
+  /* App layout */
+  .nav{
+    position:fixed;left:0;top:0;bottom:0;z-index:999;
+    transform:translateX(-100%);transition:transform .25s ease;
+    width:260px;
+  }
+  .nav.open{transform:translateX(0)}
+  .nav-toggle{display:flex}
+  .main{width:100%}
+  
+  /* Grids */
+  .kgrid{grid-template-columns:repeat(2,1fr)}
+  .kgrid-5{grid-template-columns:repeat(2,1fr)}
+  .grid2{grid-template-columns:1fr}
+  .grid3{grid-template-columns:1fr}
+  .frow{grid-template-columns:1fr}
+  .frow3{grid-template-columns:1fr}
+  
+  /* Page head */
+  .page-head{padding:12px 16px;flex-wrap:wrap;gap:8px}
+  .page-body{padding:16px}
+  
+  /* Ob card */
+  .ob-card{padding:24px 20px}
+  .tabs{margin:0 -20px !important;padding:0 10px !important}
+}
+
+/* ══════════════════════════════
+   RESPONSIVE — MOBILE (≤600px)
+══════════════════════════════ */
+@media(max-width:600px){
+  /* Auth */
+  .auth-right{padding:24px 20px;align-items:flex-start;padding-top:40px}
+  .auth-form{max-width:100% !important}
+  
+  /* KPI grid — 2 cols */
+  .kgrid{grid-template-columns:1fr 1fr;gap:8px}
+  .kgrid-5{grid-template-columns:1fr 1fr;gap:8px}
+  .kpi{padding:12px 14px}
+  .kv{font-size:20px}
+  
+  /* Page spacing */
+  .page-head{padding:10px 14px}
+  .page-body{padding:12px 14px;gap:12px}
+  .page-title{font-size:17px}
+  .page-actions{gap:6px}
+  .page-actions .btn{padding:7px 12px;font-size:12px}
+  
+  /* Cards */
+  .card-body{padding:12px 14px}
+  .card-head{padding:10px 14px}
+  
+  /* Step bar — vertical on very small */
+  .step-bar{flex-direction:column;align-items:flex-start;gap:8px;padding:14px 16px}
+  .step-line{display:none}
+  .step{flex:none}
+  
+  /* Tables — horizontal scroll */
+  .card:has(.tbl){overflow-x:auto}
+  .tbl{min-width:520px}
+  
+  /* Ob page */
+  .ob-page{padding:24px 16px}
+  .ob-card{padding:20px 16px;border-radius:12px}
+  .ob-title{font-size:17px}
+  
+  /* Onboard step 2 ingredient grid */
+  #ob-ing-list > div,
+  #ob-sup-list > div{grid-template-columns:1fr 64px 64px 32px !important}
+  
+  /* Onboard 3 grids */
+  #screen-onboard3 [style*="grid-template-columns:repeat(3,1fr)"]{display:grid;grid-template-columns:1fr !important}
+  #screen-onboard3 [style*="grid-template-columns:1fr 1fr"]{display:grid;grid-template-columns:1fr !important}
+  
+  /* Dashboard stock bar row — wrap text */
+  #app-dashboard .card [style*="display:flex;align-items:center;gap:10px;padding:10px 16px"]{
+    flex-wrap:wrap;gap:6px
+  }
+  
+  /* Search input full width */
+  .search-input{width:100%}
+  .fbar{flex-direction:column;align-items:stretch}
+  .fbar .btn{text-align:center}
+  
+  /* Nav footer */
+  .nav-foot{font-size:11px}
+  
+  /* Receipt manual form */
+  .frow,.frow3{grid-template-columns:1fr !important}
+  
+  /* Onboard bar labels */
+  .ob-label{font-size:11px}
+  
+  /* Page actions wrap */
+  .page-actions{flex-wrap:wrap}
+}
+</style>
+</head>
+<body>
+
+<!-- ══════════════ AUTH SCREENS ══════════════ -->
+<div id="screen-login">
+  <div class="auth-page">
+    <div class="auth-left">
+      <div class="auth-logo">food<em>ly</em></div>
+      <div class="auth-hero">
+        <div class="auth-tagline">소규모 식품 제조,<br/>이제 <em>스마트하게</em><br/>관리하세요</div>
+        <div class="auth-features">
+          <div class="af"><div class="af-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#9FE1CB" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg></div><div><div class="af-title">OCR 자동 입고</div><div class="af-desc">거래명세서 촬영만으로 원료 입고 완료</div></div></div>
+          <div class="af"><div class="af-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#9FE1CB" stroke-width="2" stroke-linecap="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div><div><div class="af-title">장비 자동 집계</div><div class="af-desc">생산 데이터 실시간 수신 · 수불 자동 반영</div></div></div>
+          <div class="af"><div class="af-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#9FE1CB" stroke-width="2" stroke-linecap="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/></svg></div><div><div class="af-title">수불대장 원클릭</div><div class="af-desc">식약처 양식 PDF · 엑셀 즉시 출력</div></div></div>
+        </div>
+      </div>
+      <div class="auth-foot">© 2025 Foodly · 식품 제조 통합 관리 플랫폼</div>
+    </div>
+    <div class="auth-right">
+      <div class="auth-form">
+        <div class="auth-form-title">로그인</div>
+        <div class="auth-form-sub">계정이 없으신가요? <span class="form-link" onclick="go('signup')">무료로 시작하기 →</span></div>
+        <div class="fl"><div class="fl-lbl">이메일</div><input class="finput" type="email" placeholder="example@company.com" id="login-email"/></div>
+        <div class="fl">
+          <div class="fl-lbl">비밀번호</div>
+          <div class="pw-wrap"><input class="finput" type="password" placeholder="비밀번호 입력" id="login-pw"/><button class="pw-eye" onclick="togglePw('login-pw',this)">표시</button></div>
+          <div class="err-msg hidden" id="login-err">⚠ 이메일 또는 비밀번호가 올바르지 않습니다</div>
+        </div>
+        <div style="text-align:right;font-size:12px;margin-bottom:20px"><span class="form-link">비밀번호를 잊으셨나요?</span></div>
+        <button class="btn btn-primary btn-w btn-lg" onclick="doLogin()">로그인</button>
+        <div class="divider">또는</div>
+        <button class="btn btn-kakao btn-w" onclick="doLogin()"><svg width="16" height="16" viewBox="0 0 24 24" fill="#191919"><path d="M12 3C6.48 3 2 6.69 2 11.25c0 2.88 1.87 5.41 4.72 6.9-.19.71-.7 2.57-.8 2.97-.12.5.18.49.38.36.16-.1 2.52-1.71 3.54-2.41.7.1 1.42.15 2.16.15 5.52 0 10-3.69 10-8.25C22 6.69 17.52 3 12 3z"/></svg> 카카오 계정으로 로그인</button>
+        <div style="text-align:center;font-size:13px;color:var(--gray);margin-top:20px">처음 방문이신가요? <span class="form-link" onclick="go('signup')">회원가입</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ SIGNUP ══════════════ -->
+<div id="screen-signup" class="hidden">
+  <div class="auth-page">
+    <div class="auth-left">
+      <div class="auth-logo">food<em>ly</em></div>
+      <div style="font-size:12px;color:rgba(255,255,255,.6);margin-bottom:14px;font-weight:700;letter-spacing:.5px;margin-top:24px">요금제 선택</div>
+      <div class="plan-cards-auth">
+        <div class="plan-card-a"><div style="display:flex;justify-content:space-between"><span class="plan-name-a">베이직</span><span class="plan-price-a">₩29,000/월</span></div><div class="plan-feat-a">수불대장 · OCR 50건 · 재고 대시보드</div></div>
+        <div class="plan-card-a rec"><div style="display:flex;justify-content:space-between"><span class="plan-name-a">스탠다드<span class="plan-badge-a">추천</span></span><span class="plan-price-a">₩69,000/월</span></div><div class="plan-feat-a">OCR 200건 · 장비연동 · HACCP · 카카오알림</div></div>
+        <div class="plan-card-a"><div style="display:flex;justify-content:space-between"><span class="plan-name-a">프로</span><span class="plan-price-a">₩139,000/월</span></div><div class="plan-feat-a">OCR 무제한 · 장비 무제한 · 전담 온보딩</div></div>
+      </div>
+      <div style="margin-top:14px;font-size:11px;color:rgba(255,255,255,.45);text-align:center">모든 요금제 14일 무료 체험 · 카드 없이 시작</div>
+    </div>
+    <div class="auth-right">
+      <div class="auth-form" style="max-width:400px">
+        <div style="display:flex;gap:6px;margin-bottom:20px">
+          <div style="width:8px;height:8px;border-radius:50%;background:var(--teal)"></div>
+          <div style="width:8px;height:8px;border-radius:50%;background:var(--gray-lt);border:1px solid var(--gray-bd)"></div>
+          <div style="width:8px;height:8px;border-radius:50%;background:var(--gray-lt);border:1px solid var(--gray-bd)"></div>
+        </div>
+        <div class="auth-form-title">계정 만들기</div>
+        <div class="auth-form-sub">이미 계정이 있으신가요? <span class="form-link" onclick="go('login')">로그인</span></div>
+        <div class="frow">
+          <div class="fl"><div class="fl-lbl">이름 <span class="req">*</span></div><input class="finput ok" type="text" value="홍길동"/></div>
+          <div class="fl"><div class="fl-lbl">연락처</div><input class="finput" type="text" placeholder="010-0000-0000"/></div>
+        </div>
+        <div class="fl"><div class="fl-lbl">이메일 <span class="req">*</span></div><input class="finput ok" type="email" value="hong@bakery.co.kr"/><div class="ok-msg">✓ 사용 가능한 이메일입니다</div></div>
+        <div class="fl">
+          <div class="fl-lbl">비밀번호 <span class="req">*</span></div>
+          <div class="pw-wrap"><input class="finput" type="password" value="Secure123!" id="signup-pw"/><button class="pw-eye" onclick="togglePw('signup-pw',this)">표시</button></div>
+          <div style="display:flex;gap:3px;margin-top:6px"><div style="flex:1;height:3px;border-radius:2px;background:var(--teal)"></div><div style="flex:1;height:3px;border-radius:2px;background:var(--teal)"></div><div style="flex:1;height:3px;border-radius:2px;background:var(--teal)"></div><div style="flex:1;height:3px;border-radius:2px;background:var(--teal)"></div></div>
+          <div style="font-size:11px;color:var(--teal-dk);margin-top:2px">강력한 비밀번호</div>
+        </div>
+        <div class="fl">
+          <div class="fl-lbl">요금제 <span class="req">*</span></div>
+          <select><option>스탠다드 — ₩69,000/월 (추천)</option><option>베이직 — ₩29,000/월</option><option>프로 — ₩139,000/월</option></select>
+          <div class="hint">14일 무료 체험 · 언제든 해지 가능</div>
+        </div>
+        <div style="display:flex;align-items:flex-start;gap:8px;font-size:12px;color:var(--gray);margin-bottom:8px"><input type="checkbox" checked style="margin-top:3px;cursor:pointer"/><span><span class="form-link">이용약관</span> 및 <span class="form-link">개인정보처리방침</span>에 동의합니다 <span class="req">*</span></span></div>
+        <button class="btn btn-primary btn-w btn-lg" onclick="go('onboard1')">계정 만들기 · 다음 단계 →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ ONBOARD 1: 사업장 등록 ══════════════ -->
+<div id="screen-onboard1" class="hidden">
+  <div class="ob-page">
+    <div class="ob-logo">food<em>ly</em></div>
+    <div class="ob-progress">
+      <div class="ob-steps">
+        <div class="ob-step"><div class="ob-dot od-done"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg></div><span class="ob-label ol-done">계정 생성</span></div>
+        <div class="ob-step"><div class="ob-dot od-active">2</div><span class="ob-label ol-active">사업장 등록</span></div>
+        <div class="ob-step"><div class="ob-dot od-idle">3</div><span class="ob-label ol-idle">초기 데이터</span></div>
+      </div>
+      <div class="ob-bars"><div class="ob-bar ob-done"></div><div class="ob-bar ob-idle"></div></div>
+    </div>
+    <div class="ob-card">
+      <div class="ob-title">사업장 정보를 입력해 주세요</div>
+      <div class="ob-sub">입력하신 정보로 수불대장 헤더와 법정 서류가 자동으로 채워집니다</div>
+      <div class="fl"><div class="fl-lbl">사업장(업체)명 <span class="req">*</span></div><input class="finput ok" type="text" value="맛있는베이커리"/></div>
+      <div class="fl"><div class="fl-lbl">사업자등록번호 <span class="req">*</span></div><input class="finput ok" type="text" value="123-45-67890"/><div class="verified-box"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--teal)" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg> 국세청 조회 완료 — 정상 사업자 확인</div></div>
+      <div class="frow">
+        <div class="fl"><div class="fl-lbl">대표자명 <span class="req">*</span></div><input class="finput ok" type="text" value="홍길동"/></div>
+        <div class="fl"><div class="fl-lbl">업종</div><select><option>식품 제조업</option><option>식품 가공업</option><option>제과제빵업</option></select></div>
+      </div>
+      <div class="fl"><div class="fl-lbl">사업장 주소</div><input class="finput" type="text" placeholder="주소 입력"/></div>
+      <div class="fl" style="margin-bottom:20px">
+        <div class="fl-lbl">HACCP 인증 여부 <span class="req">*</span></div>
+        <div style="display:flex;gap:10px;margin-top:4px">
+          <div style="flex:1;border:1px solid var(--gray-bd);border-radius:var(--radius);padding:12px 14px;cursor:pointer" id="h-no" onclick="selectHaccp('no')"><div style="font-size:13px;font-weight:700;margin-bottom:3px">미인증</div><div style="font-size:11px;color:var(--gray)">베이직·스탠다드 기능 사용</div></div>
+          <div style="flex:1;border:1px solid var(--teal);border-radius:var(--radius);padding:12px 14px;cursor:pointer;background:var(--teal-lt)" id="h-yes" onclick="selectHaccp('yes')"><div style="font-size:13px;font-weight:700;margin-bottom:3px;color:var(--teal-dk)">인증 완료</div><div style="font-size:11px;color:var(--teal-dk)">HACCP CCP 기록 모듈 추가</div></div>
+        </div>
+      </div>
+      <button class="btn btn-primary btn-w btn-lg" onclick="go('onboard2')">다음 — 초기 데이터 설정 →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ ONBOARD 2: 초기 데이터 ══════════════ -->
+<div id="screen-onboard2" class="hidden">
+  <div class="ob-page">
+    <div class="ob-logo">food<em>ly</em></div>
+    <div class="ob-progress">
+      <div class="ob-steps">
+        <div class="ob-step"><div class="ob-dot od-done"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg></div><span class="ob-label ol-done">계정 생성</span></div>
+        <div class="ob-step"><div class="ob-dot od-done"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg></div><span class="ob-label ol-done">사업장 등록</span></div>
+        <div class="ob-step"><div class="ob-dot od-active">3</div><span class="ob-label ol-active">초기 데이터</span></div>
+      </div>
+      <div class="ob-bars"><div class="ob-bar ob-done"></div><div class="ob-bar ob-done"></div></div>
+    </div>
+    <div class="ob-card">
+      <div class="ob-title">초기 데이터를 입력해 주세요</div>
+      <div class="ob-sub">나중에 설정 메뉴에서도 추가할 수 있습니다</div>
+      <div class="tabs" style="margin:0 -36px;padding:0 18px;margin-bottom:16px">
+        <div class="tab-item active" id="ob-tab-ing" onclick="obTab('ing')">원료 목록</div>
+        <div class="tab-item" id="ob-tab-sup" onclick="obTab('sup')">공급업체</div>
+      </div>
+      <div id="ob-ing">
+        <div style="display:grid;grid-template-columns:1fr 80px 80px 36px;gap:8px;font-size:11px;color:var(--gray);margin-bottom:4px;padding-bottom:4px;border-bottom:1px solid var(--gray-bd)"><span>원료명</span><span>단위</span><span>안전재고</span><span></span></div>
+        <div id="ob-ing-list">
+          <div style="display:grid;grid-template-columns:1fr 80px 80px 36px;gap:8px;margin-bottom:8px;align-items:center"><input class="finput" style="padding:7px 9px;font-size:12px" type="text" value="밀가루 (중력분)"/><select style="height:34px;font-size:12px"><option>kg</option><option>g</option><option>L</option><option>개</option></select><input class="finput" style="padding:7px 9px;font-size:12px;text-align:right" type="number" value="100"/><button onclick="this.closest('div').remove()" style="width:28px;height:28px;border-radius:5px;border:1px solid var(--gray-bd);background:var(--gray-lt);cursor:pointer;color:var(--gray);font-size:14px">×</button></div>
+          <div style="display:grid;grid-template-columns:1fr 80px 80px 36px;gap:8px;margin-bottom:8px;align-items:center"><input class="finput" style="padding:7px 9px;font-size:12px" type="text" value="설탕 (정백당)"/><select style="height:34px;font-size:12px"><option>kg</option><option>g</option></select><input class="finput" style="padding:7px 9px;font-size:12px;text-align:right" type="number" value="20"/><button onclick="this.closest('div').remove()" style="width:28px;height:28px;border-radius:5px;border:1px solid var(--gray-bd);background:var(--gray-lt);cursor:pointer;color:var(--gray);font-size:14px">×</button></div>
+          <div style="display:grid;grid-template-columns:1fr 80px 80px 36px;gap:8px;margin-bottom:8px;align-items:center"><input class="finput" style="padding:7px 9px;font-size:12px" type="text" value="버터 (무가염)"/><select style="height:34px;font-size:12px"><option>kg</option><option>g</option></select><input class="finput" style="padding:7px 9px;font-size:12px;text-align:right" type="number" value="15"/><button onclick="this.closest('div').remove()" style="width:28px;height:28px;border-radius:5px;border:1px solid var(--gray-bd);background:var(--gray-lt);cursor:pointer;color:var(--gray);font-size:14px">×</button></div>
+        </div>
+        <div onclick="addObIng()" style="display:flex;align-items:center;justify-content:center;gap:5px;padding:9px;font-size:12px;color:var(--gray);cursor:pointer;border-top:1px dashed var(--gray-bd);margin-top:4px">+ 원료 추가</div>
+      </div>
+      <div id="ob-sup" class="hidden">
+        <div style="display:grid;grid-template-columns:1fr 1fr 36px;gap:8px;font-size:11px;color:var(--gray);margin-bottom:4px;padding-bottom:4px;border-bottom:1px solid var(--gray-bd)"><span>업체명</span><span>사업자번호</span><span></span></div>
+        <div id="ob-sup-list">
+          <div style="display:grid;grid-template-columns:1fr 1fr 36px;gap:8px;margin-bottom:8px;align-items:center"><input class="finput" style="padding:7px 9px;font-size:12px" type="text" value="(주)대한제분"/><input class="finput" style="padding:7px 9px;font-size:11px;font-family:var(--mono)" type="text" value="123-45-67890"/><button onclick="this.closest('div').remove()" style="width:28px;height:28px;border-radius:5px;border:1px solid var(--gray-bd);background:var(--gray-lt);cursor:pointer;color:var(--gray);font-size:14px">×</button></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 36px;gap:8px;margin-bottom:8px;align-items:center"><input class="finput" style="padding:7px 9px;font-size:12px" type="text" value="삼양사"/><input class="finput" style="padding:7px 9px;font-size:11px;font-family:var(--mono)" type="text" value="234-56-78901"/><button onclick="this.closest('div').remove()" style="width:28px;height:28px;border-radius:5px;border:1px solid var(--gray-bd);background:var(--gray-lt);cursor:pointer;color:var(--gray);font-size:14px">×</button></div>
+        </div>
+        <div onclick="addObSup()" style="display:flex;align-items:center;justify-content:center;gap:5px;padding:9px;font-size:12px;color:var(--gray);cursor:pointer;border-top:1px dashed var(--gray-bd);margin-top:4px">+ 공급업체 추가</div>
+      </div>
+      <div style="margin-top:16px;display:flex;flex-direction:column;gap:8px">
+        <button class="btn btn-primary btn-w btn-lg" onclick="go('onboard3')">설정 완료 · 시작하기 →</button>
+        <button class="btn btn-ghost btn-w" onclick="go('onboard3')" style="font-size:13px;padding:10px">지금은 건너뛰기</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ ONBOARD 3: 완료 ══════════════ -->
+<div id="screen-onboard3" class="hidden">
+  <div class="ob-page" style="justify-content:center">
+    <div class="ob-logo">food<em>ly</em></div>
+    <div style="text-align:center;margin-bottom:20px">
+      <div class="pop" style="width:72px;height:72px;border-radius:50%;background:var(--teal-lt);display:flex;align-items:center;justify-content:center;margin:0 auto 16px"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="var(--teal)" stroke-width="2" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+      <div style="font-size:24px;font-weight:700;color:var(--dark);margin-bottom:6px">설정이 완료됐습니다!</div>
+      <div style="font-size:14px;color:var(--gray)">맛있는베이커리의 Foodly를 시작할 준비가 됐어요</div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;width:100%;max-width:480px;margin-bottom:24px">
+      <div style="background:var(--white);border:1px solid var(--gray-bd);border-radius:var(--radius);padding:14px;text-align:center"><div style="font-size:20px;font-weight:700;color:var(--teal);margin-bottom:3px">3</div><div style="font-size:11px;color:var(--gray)">원료 등록됨</div></div>
+      <div style="background:var(--white);border:1px solid var(--gray-bd);border-radius:var(--radius);padding:14px;text-align:center"><div style="font-size:20px;font-weight:700;color:var(--teal);margin-bottom:3px">2</div><div style="font-size:11px;color:var(--gray)">공급업체 등록됨</div></div>
+      <div style="background:var(--white);border:1px solid var(--gray-bd);border-radius:var(--radius);padding:14px;text-align:center"><div style="font-size:20px;font-weight:700;color:var(--purple);margin-bottom:3px">14일</div><div style="font-size:11px;color:var(--gray)">무료 체험</div></div>
+    </div>
+    <div style="font-size:13px;font-weight:700;color:var(--gray);margin-bottom:12px">지금 바로 시작해보세요</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;width:100%;max-width:480px;margin-bottom:20px">
+      <div onclick="goApp('receipt')" style="background:var(--white);border:1px solid var(--gray-bd);border-radius:var(--radius);padding:14px 16px;cursor:pointer;display:flex;align-items:flex-start;gap:12px" onmouseenter="this.style.borderColor='var(--teal)'" onmouseleave="this.style.borderColor='var(--gray-bd)'"><div style="width:36px;height:36px;border-radius:8px;background:var(--teal-lt);display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--teal)" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg></div><div><div style="font-size:13px;font-weight:700;margin-bottom:3px">첫 입고 등록</div><div style="font-size:11px;color:var(--gray)">OCR 자동 입력</div></div></div>
+      <div onclick="goApp('recipe')" style="background:var(--white);border:1px solid var(--gray-bd);border-radius:var(--radius);padding:14px 16px;cursor:pointer;display:flex;align-items:flex-start;gap:12px" onmouseenter="this.style.borderColor='var(--teal)'" onmouseleave="this.style.borderColor='var(--gray-bd)'"><div style="width:36px;height:36px;border-radius:8px;background:var(--purple-lt);display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--purple)" stroke-width="1.8" stroke-linecap="round"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg></div><div><div style="font-size:13px;font-weight:700;margin-bottom:3px">레시피 등록</div><div style="font-size:11px;color:var(--gray)">배합비율 설정</div></div></div>
+      <div onclick="goApp('device')" style="background:var(--white);border:1px solid var(--gray-bd);border-radius:var(--radius);padding:14px 16px;cursor:pointer;display:flex;align-items:flex-start;gap:12px" onmouseenter="this.style.borderColor='var(--teal)'" onmouseleave="this.style.borderColor='var(--gray-bd)'"><div style="width:36px;height:36px;border-radius:8px;background:var(--amber-lt);display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--amber)" stroke-width="1.8" stroke-linecap="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/></svg></div><div><div style="font-size:13px;font-weight:700;margin-bottom:3px">장비 연동</div><div style="font-size:11px;color:var(--gray)">API Key 발급</div></div></div>
+      <div onclick="goApp('supplier')" style="background:var(--white);border:1px solid var(--gray-bd);border-radius:var(--radius);padding:14px 16px;cursor:pointer;display:flex;align-items:flex-start;gap:12px" onmouseenter="this.style.borderColor='var(--teal)'" onmouseleave="this.style.borderColor='var(--gray-bd)'"><div style="width:36px;height:36px;border-radius:8px;background:var(--gray-lt);display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--gray)" stroke-width="1.8" stroke-linecap="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg></div><div><div style="font-size:13px;font-weight:700;margin-bottom:3px">공급업체 추가</div><div style="font-size:11px;color:var(--gray)">거래처 마스터</div></div></div>
+    </div>
+    <button class="btn btn-primary btn-lg" style="min-width:220px" onclick="goApp('dashboard')">대시보드 시작하기 →</button>
+    <div style="font-size:11px;color:var(--gray-md);margin-top:12px">스탠다드 플랜 · 14일 무료 체험 중</div>
+  </div>
+</div>
+
+<!-- ══════════════ MAIN APP ══════════════ -->
+<div id="screen-app" class="hidden">
+<div class="nav-overlay" id="nav-overlay" onclick="closeNav()"></div>
+<button class="nav-toggle" id="nav-toggle" onclick="toggleNav()" aria-label="메뉴 열기">
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+    <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+  </svg>
+</button>
+<div class="app">
+  <!-- NAV -->
+  <nav class="nav" id="app-nav">
+    <div class="nav-logo">food<em>ly</em></div>
+    <div class="nav-section">메인</div>
+    <div class="nav-item" id="nav-dashboard" onclick="goApp('dashboard')">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>대시보드
+    </div>
+    <div class="nav-section">원료 관리</div>
+    <div class="nav-item" id="nav-receipt" onclick="goApp('receipt')">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>원료 입고
+    </div>
+    <div class="nav-item" id="nav-stock" onclick="goApp('stock')">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>재고 현황
+    </div>
+    <div class="nav-item" id="nav-ledger" onclick="goApp('ledger')">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>원료수불대장
+    </div>
+    <div class="nav-section">생산</div>
+    <div class="nav-item" id="nav-production" onclick="goApp('production')">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>생산 기록
+    </div>
+    <div class="nav-item" id="nav-recipe" onclick="goApp('recipe')">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg>레시피 관리
+    </div>
+    <div class="nav-section">설정</div>
+    <div class="nav-item" id="nav-supplier" onclick="goApp('supplier')">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>공급업체
+    </div>
+    <div class="nav-item" id="nav-device" onclick="goApp('device')">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/></svg>장비 관리
+    </div>
+    <div class="nav-foot">
+      <div style="font-weight:700;margin-bottom:2px">맛있는베이커리</div>
+      <div style="color:var(--gray-md)">스탠다드 · 홍길동</div>
+      <div style="margin-top:8px;cursor:pointer;color:var(--teal)" onclick="go('login')">로그아웃</div>
+    </div>
+  </nav>
+
+  <!-- MAIN CONTENT AREA -->
+  <main class="main">
+
+    <!-- ── 대시보드 ── -->
+    <div id="app-dashboard" class="hidden">
+      <div class="page-head">
+        <div><div class="page-title">대시보드</div><div class="page-sub">2025년 3월 21일 14:30 기준 · 실시간 반영</div></div>
+        <div class="page-actions"><button class="btn btn-primary btn-sm" onclick="goApp('receipt')">+ 입고 등록</button></div>
+      </div>
+      <div class="page-body">
+        <div class="alert alert-danger"><span>⚠ 유통기한 7일 이내 원료 2건 — 밀가루 LOT-A (3일), 버터 LOT-B (6일)</span><button class="btn btn-sm btn-ghost">확인</button></div>
+        <div class="alert alert-warn"><span>⚠ 안전재고 이하 원료 3건 — 설탕 8kg / 안전재고 20kg</span><button class="btn btn-sm btn-ghost" onclick="goApp('receipt')">입고 등록</button></div>
+        <div class="kgrid">
+          <div class="kpi"><div class="kl">오늘 생산량</div><div class="kv">1,240 <span class="ku">개</span></div><div class="ks up">▲ 어제 대비 +8%</div></div>
+          <div class="kpi"><div class="kl">오늘 양품률</div><div class="kv">97.3 <span class="ku">%</span></div><div class="ks dn">▼ -0.4%p</div></div>
+          <div class="kpi"><div class="kl">오늘 입고</div><div class="kv">4 <span class="ku">건</span></div><div class="ks">총 320 kg</div></div>
+          <div class="kpi danger"><div class="kl">재고 알림</div><div class="kv" style="color:var(--red)">5 <span class="ku">건</span></div><div class="ks dn">유통기한 2 · 안전재고 3</div></div>
+        </div>
+        <div class="grid2">
+          <div class="card"><div class="card-head"><div class="card-title">주간 생산 추이</div><div style="display:flex;gap:12px;font-size:11px;color:var(--gray)"><span><span style="display:inline-block;width:10px;height:10px;background:var(--teal-md);border-radius:2px;margin-right:3px"></span>양품</span><span><span style="display:inline-block;width:10px;height:10px;background:var(--red-md);border-radius:2px;margin-right:3px"></span>불량</span></div></div><div class="card-body" style="height:200px;position:relative"><canvas id="dash-chart"></canvas></div></div>
+          <div class="card"><div class="card-head"><div class="card-title">최근 입고</div><span class="section-link" onclick="goApp('receipt')">전체 보기 →</span></div><div class="card-body" style="padding:0">
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 16px;border-bottom:1px solid var(--gray-lt)"><div><div style="font-size:13px;font-weight:700">밀가루 (중력분)</div><div style="font-size:11px;color:var(--gray)">(주)대한제분 · LOT-2025-031</div></div><div style="text-align:right"><div style="font-size:13px;font-weight:700">100 kg</div><div style="font-size:11px;color:var(--gray)">오늘 09:14</div></div></div>
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 16px;border-bottom:1px solid var(--gray-lt)"><div><div style="font-size:13px;font-weight:700">설탕 (정백당)</div><div style="font-size:11px;color:var(--gray)">삼양사 · LOT-2025-029</div></div><div style="text-align:right"><div style="font-size:13px;font-weight:700">50 kg</div><div style="font-size:11px;color:var(--gray)">오늘 10:32</div></div></div>
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 16px;border-bottom:1px solid var(--gray-lt)"><div><div style="font-size:13px;font-weight:700">버터 (무가염)</div><div style="font-size:11px;color:var(--gray)">서울우유 · LOT-2025-028</div></div><div style="text-align:right"><div style="font-size:13px;font-weight:700">30 kg</div><div style="font-size:11px;color:var(--gray)">어제 16:05</div></div></div>
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 16px"><div><div style="font-size:13px;font-weight:700">달걀 (특란)</div><div style="font-size:11px;color:var(--gray)">하림 · LOT-2025-027</div></div><div style="text-align:right"><div style="font-size:13px;font-weight:700">140 개</div><div style="font-size:11px;color:var(--gray)">어제 14:20</div></div></div>
+          </div></div>
+        </div>
+        <div class="card"><div class="card-head"><div class="card-title">원료 재고 현황</div><span class="section-link" onclick="goApp('stock')">상세 보기 →</span></div><div class="card-body" style="padding:0">
+          <div style="display:flex;align-items:center;gap:10px;padding:10px 16px;border-bottom:1px solid var(--gray-lt)"><span style="flex:1;font-size:13px">밀가루 (중력분)</span><span class="bdg b-ok">정상</span><div class="bar-wrap" style="flex:2"><div class="bar-fill" style="width:73%;background:var(--teal)"></div><div class="bar-safe" style="left:33%"></div></div><span style="font-size:12px;color:var(--gray);min-width:80px;text-align:right">220 / 300 kg</span></div>
+          <div style="display:flex;align-items:center;gap:10px;padding:10px 16px;border-bottom:1px solid var(--gray-lt);background:#fff8f8"><span style="flex:1;font-size:13px">설탕 (정백당)</span><span class="bdg b-danger">부족</span><div class="bar-wrap" style="flex:2"><div class="bar-fill" style="width:8%;background:#E24B4A"></div><div class="bar-safe" style="left:20%"></div></div><span style="font-size:12px;color:var(--red);min-width:80px;text-align:right">8 / 100 kg</span></div>
+          <div style="display:flex;align-items:center;gap:10px;padding:10px 16px;border-bottom:1px solid var(--gray-lt)"><span style="flex:1;font-size:13px">버터 (무가염)</span><span class="bdg b-warn">주의</span><div class="bar-wrap" style="flex:2"><div class="bar-fill" style="width:56%;background:#EF9F27"></div><div class="bar-safe" style="left:25%"></div></div><span style="font-size:12px;color:var(--gray);min-width:80px;text-align:right">45 / 80 kg</span></div>
+          <div style="display:flex;align-items:center;gap:10px;padding:10px 16px;border-bottom:1px solid var(--gray-lt)"><span style="flex:1;font-size:13px">달걀 (특란)</span><span class="bdg b-ok">정상</span><div class="bar-wrap" style="flex:2"><div class="bar-fill" style="width:70%;background:var(--teal)"></div><div class="bar-safe" style="left:25%"></div></div><span style="font-size:12px;color:var(--gray);min-width:80px;text-align:right">280 / 400 개</span></div>
+          <div style="display:flex;align-items:center;gap:10px;padding:10px 16px"><span style="flex:1;font-size:13px">식용유</span><span class="bdg b-warn">주의</span><div class="bar-wrap" style="flex:2"><div class="bar-fill" style="width:36%;background:#EF9F27"></div><div class="bar-safe" style="left:30%"></div></div><span style="font-size:12px;color:var(--gray);min-width:80px;text-align:right">18 / 50 L</span></div>
+        </div></div>
+      </div>
+    </div>
+
+    <!-- ── 원료 입고 ── -->
+    <div id="app-receipt" class="hidden">
+      <div class="page-head"><div><div class="page-title">원료 입고 등록</div></div><div class="page-actions"><button class="btn btn-ghost btn-sm" onclick="goApp('dashboard')">← 취소</button></div></div>
+      <div class="page-body">
+        <div class="step-bar">
+          <div class="step"><div class="step-dot sd-active">1</div><span class="step-name">입고 방법 선택</span></div>
+          <div class="step-line"></div>
+          <div class="step"><div class="step-dot sd-idle">2</div><span class="step-name" style="color:var(--gray-md)">명세서 업로드</span></div>
+          <div class="step-line"></div>
+          <div class="step"><div class="step-dot sd-idle">3</div><span class="step-name" style="color:var(--gray-md)">OCR 분석</span></div>
+          <div class="step-line"></div>
+          <div class="step"><div class="step-dot sd-idle">4</div><span class="step-name" style="color:var(--gray-md)">검토 · 확정</span></div>
+          <div class="step-line"></div>
+          <div class="step"><div class="step-dot sd-idle">5</div><span class="step-name" style="color:var(--gray-md)">완료</span></div>
+        </div>
+        <div class="grid2">
+          <div class="card" style="cursor:pointer;border:2px solid var(--teal)" onclick="goApp('receipt-ocr')">
+            <div class="card-body">
+              <div style="width:44px;height:44px;border-radius:10px;background:var(--teal-lt);display:flex;align-items:center;justify-content:center;margin-bottom:12px"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--teal)" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg></div>
+              <div style="font-size:15px;font-weight:700;margin-bottom:4px">거래명세서 OCR 자동 입력</div>
+              <span class="bdg b-ok" style="margin-bottom:10px;display:inline-block">추천</span>
+              <div style="font-size:13px;color:var(--gray);margin-bottom:12px">거래명세서를 촬영하면 Claude Vision이 자동으로 항목을 추출합니다. 입력 시간 80% 단축.</div>
+              <div style="display:flex;flex-direction:column;gap:4px;font-size:12px;color:var(--gray)">
+                <span>· 공급업체명 · 품목 · 수량 · 단가 자동 추출</span>
+                <span>· 양식 무관 — 어떤 명세서든 인식</span>
+              </div>
+            </div>
+          </div>
+          <div class="card" style="cursor:pointer" onclick="goApp('receipt-manual')" onmouseenter="this.style.borderColor='var(--teal)'" onmouseleave="this.style.borderColor='var(--gray-bd)'">
+            <div class="card-body">
+              <div style="width:44px;height:44px;border-radius:10px;background:var(--gray-lt);display:flex;align-items:center;justify-content:center;margin-bottom:12px"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--gray)" stroke-width="1.8" stroke-linecap="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></div>
+              <div style="font-size:15px;font-weight:700;margin-bottom:4px">직접 수동 입력</div>
+              <span class="bdg b-gray" style="margin-bottom:10px;display:inline-block">수동</span>
+              <div style="font-size:13px;color:var(--gray);margin-bottom:12px">명세서 없이 직접 입력합니다. 간단한 입고나 명세서가 없는 경우에 사용합니다.</div>
+              <div style="display:flex;flex-direction:column;gap:4px;font-size:12px;color:var(--gray)">
+                <span>· 명세서 없이 즉시 입력 가능</span>
+                <span>· 다품목 일괄 등록 지원</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="card"><div class="card-head"><div class="card-title">최근 입고 이력</div></div>
+        <table class="tbl"><colgroup><col style="width:180px"/><col style="width:130px"/><col style="width:90px"/><col style="width:80px"/><col style="width:70px"/><col style="width:60px"/></colgroup>
+          <thead><tr><th>원료명 / 공급처</th><th>로트번호</th><th class="r">수량</th><th class="r">납품일</th><th>입력</th><th>상태</th></tr></thead>
+          <tbody>
+            <tr><td><div style="font-weight:700">밀가루(중력분)</div><div class="mono">(주)대한제분</div></td><td><span class="lot">LOT-2025-031</span></td><td class="r" style="font-weight:700">100 kg</td><td class="r" style="color:var(--gray)">03-21</td><td><span class="tag t-ocr">OCR</span></td><td><span class="bdg b-ok">완료</span></td></tr>
+            <tr><td><div style="font-weight:700">설탕(정백당)</div><div class="mono">삼양사</div></td><td><span class="lot">LOT-2025-029</span></td><td class="r" style="font-weight:700">50 kg</td><td class="r" style="color:var(--gray)">03-21</td><td><span class="tag t-ocr">OCR</span></td><td><span class="bdg b-ok">완료</span></td></tr>
+            <tr><td><div style="font-weight:700">버터(무가염)</div><div class="mono">서울우유</div></td><td><span class="lot">LOT-2025-028</span></td><td class="r" style="font-weight:700">30 kg</td><td class="r" style="color:var(--gray)">03-20</td><td><span class="tag t-manual">수동</span></td><td><span class="bdg b-warn">검토중</span></td></tr>
+          </tbody>
+        </table></div>
+      </div>
+    </div>
+
+    <!-- ── OCR 입고 검토 ── -->
+    <div id="app-receipt-ocr" class="hidden">
+      <div class="page-head"><div><div class="page-title">원료 입고 — OCR 검토·수정</div></div><div class="page-actions"><button class="btn btn-ghost btn-sm" onclick="goApp('receipt')">← 재분석</button><button class="btn btn-primary btn-sm" onclick="goApp('receipt-done')">입고 확정 →</button></div></div>
+      <div class="page-body">
+        <div class="step-bar">
+          <div class="step"><div class="step-dot sd-done"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg></div><span class="step-name" style="color:var(--teal)">방법 선택</span></div>
+          <div class="step-line step-line-done"></div>
+          <div class="step"><div class="step-dot sd-done"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg></div><span class="step-name" style="color:var(--teal)">업로드</span></div>
+          <div class="step-line step-line-done"></div>
+          <div class="step"><div class="step-dot sd-done"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg></div><span class="step-name" style="color:var(--teal)">OCR 분석</span></div>
+          <div class="step-line step-line-done"></div>
+          <div class="step"><div class="step-dot sd-active">4</div><span class="step-name">검토·수정</span></div>
+          <div class="step-line"></div>
+          <div class="step"><div class="step-dot sd-idle">5</div><span class="step-name" style="color:var(--gray-md)">완료</span></div>
+        </div>
+        <div class="alert alert-warn">⚠ 2개 항목을 확인해 주세요 — 단가(보통), 로트번호(직접 입력 필요)</div>
+        <div class="grid2">
+          <div class="card"><div class="card-head"><div class="card-title">원본 명세서</div></div><div class="card-body">
+            <div style="background:var(--gray-lt);border:1px solid var(--gray-bd);border-radius:var(--radius-sm);padding:16px;font-size:12px;line-height:2">
+              <div style="font-size:13px;font-weight:700;border-bottom:1px solid var(--gray-bd);padding-bottom:8px;margin-bottom:8px">(주)대한제분  거래명세서</div>
+              납품일: 2025-03-21<br/>품목: 밀가루(중력분)<br/>수량: 100 kg<br/>단가: <span style="background:var(--amber-lt);color:#633806;padding:0 3px;border-radius:2px">₩1,200/kg</span><br/>유통기한: <span style="background:var(--amber-lt);color:#633806;padding:0 3px;border-radius:2px">2026.03.21</span><br/>LOT: <span style="background:var(--red-lt);color:#7a1f1f;padding:0 3px;border-radius:2px;border:1px solid var(--red-md)">판독 불가</span>
+            </div>
+            <div style="margin-top:10px;display:flex;flex-direction:column;gap:5px">
+              <div style="display:flex;justify-content:space-between;font-size:12px;padding:5px 8px;background:var(--gray-lt);border-radius:5px"><span>공급업체·품목·수량</span><span style="color:var(--teal);font-weight:700">높음</span></div>
+              <div style="display:flex;justify-content:space-between;font-size:12px;padding:5px 8px;background:var(--amber-lt);border-radius:5px"><span>단가·유통기한</span><span style="color:var(--amber);font-weight:700">확인 권장</span></div>
+              <div style="display:flex;justify-content:space-between;font-size:12px;padding:5px 8px;background:var(--red-lt);border-radius:5px"><span>로트번호</span><span style="color:var(--red);font-weight:700">직접 입력</span></div>
+            </div>
+          </div></div>
+          <div class="card"><div class="card-head"><div class="card-title">추출 결과 검토</div></div><div class="card-body">
+            <div class="fl"><div class="fl-lbl">공급업체 <span style="font-size:10px;font-weight:700;padding:2px 7px;border-radius:3px;background:var(--purple-lt);color:#3C3489;margin-left:4px">자동매핑</span></div><input class="finput" style="background:var(--gray-lt);color:var(--gray)" value="(주)대한제분" readonly/></div>
+            <div class="frow"><div class="fl"><div class="fl-lbl">납품일자 <span style="font-size:10px;padding:2px 6px;border-radius:3px;background:var(--teal-lt);color:#085041;font-weight:700;margin-left:4px">높음</span></div><input class="finput ok" type="date" value="2025-03-21"/></div><div class="fl"><div class="fl-lbl">품목명 <span style="font-size:10px;padding:2px 6px;border-radius:3px;background:var(--teal-lt);color:#085041;font-weight:700;margin-left:4px">높음</span></div><input class="finput ok" value="밀가루(중력분)"/></div></div>
+            <div class="frow"><div class="fl"><div class="fl-lbl">수량</div><input class="finput ok" type="number" value="100" style="text-align:right"/></div><div class="fl"><div class="fl-lbl">단가(원/kg) <span style="font-size:10px;padding:2px 6px;border-radius:3px;background:var(--amber-lt);color:#633806;font-weight:700;margin-left:4px">확인 권장</span></div><input class="finput" style="border-color:var(--amber-md);background:var(--amber-lt)" type="number" value="1200" style="text-align:right"/></div></div>
+            <div class="frow"><div class="fl"><div class="fl-lbl">유통기한 <span style="font-size:10px;padding:2px 6px;border-radius:3px;background:var(--amber-lt);color:#633806;font-weight:700;margin-left:4px">확인 필요</span></div><input class="finput" style="border-color:var(--amber-md);background:var(--amber-lt)" type="date" value="2026-03-21"/></div><div class="fl"><div class="fl-lbl">로트번호 <span style="font-size:10px;padding:2px 6px;border-radius:3px;background:var(--red-lt);color:#791F1F;font-weight:700;margin-left:4px">직접 입력</span></div><input class="finput error" placeholder="LOT 번호 입력"/></div></div>
+          </div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── 입고 완료 ── -->
+    <div id="app-receipt-done" class="hidden">
+      <div class="page-head"><div><div class="page-title">원료 입고 완료</div></div></div>
+      <div class="page-body">
+        <div style="display:flex;flex-direction:column;align-items:center;padding:40px 20px">
+          <div class="pop" style="width:72px;height:72px;border-radius:50%;background:var(--teal-lt);display:flex;align-items:center;justify-content:center;margin-bottom:16px"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="var(--teal)" stroke-width="2" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+          <div style="font-size:22px;font-weight:700;margin-bottom:6px">입고 확정이 완료되었습니다</div>
+          <div style="font-size:14px;color:var(--gray);margin-bottom:6px">수불대장에 자동 반영되었습니다</div>
+          <div class="mono" style="font-size:12px;color:var(--gray-md);margin-bottom:24px">입고번호 R-20250321-004</div>
+          <div style="background:var(--white);border:1px solid var(--gray-bd);border-radius:var(--radius);padding:16px 24px;width:100%;max-width:400px;margin-bottom:20px">
+            <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--gray-lt);font-size:13px"><span style="color:var(--gray)">품목</span><span style="font-weight:700">밀가루(중력분)</span></div>
+            <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--gray-lt);font-size:13px"><span style="color:var(--gray)">수량</span><span style="font-weight:700">100 kg</span></div>
+            <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--gray-lt);font-size:13px"><span style="color:var(--gray)">납품일</span><span style="font-weight:700">2025-03-21</span></div>
+            <div style="display:flex;justify-content:space-between;padding:6px 0;font-size:13px"><span style="color:var(--gray)">입력방식</span><span class="tag t-ocr">OCR 자동</span></div>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;width:100%;max-width:400px;margin-bottom:24px">
+            <div style="background:var(--gray-lt);border-radius:var(--radius);padding:12px;text-align:center"><div style="font-size:11px;color:var(--gray);margin-bottom:4px">이전 재고</div><div style="font-size:18px;font-weight:700">120 kg</div></div>
+            <div style="background:var(--teal-lt);border-radius:var(--radius);padding:12px;text-align:center"><div style="font-size:11px;color:var(--teal-dk);margin-bottom:4px">입고량</div><div style="font-size:18px;font-weight:700;color:var(--teal)">+100 kg</div></div>
+            <div style="background:var(--gray-lt);border-radius:var(--radius);padding:12px;text-align:center"><div style="font-size:11px;color:var(--gray);margin-bottom:4px">현재 재고</div><div style="font-size:18px;font-weight:700;color:var(--teal)">220 kg</div></div>
+          </div>
+          <div style="display:flex;gap:10px">
+            <button class="btn btn-ghost" onclick="goApp('ledger')">수불대장 확인</button>
+            <button class="btn btn-outline" onclick="goApp('stock')">재고 현황</button>
+            <button class="btn btn-primary" onclick="goApp('receipt')">+ 추가 입고 등록</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── 재고 현황 ── -->
+    <div id="app-stock" class="hidden">
+      <div class="page-head"><div><div class="page-title">재고 현황</div><div class="page-sub">2025년 3월 21일 14:30 기준</div></div><div class="page-actions"><button class="btn btn-ghost btn-sm">재고 조정</button><button class="btn btn-primary btn-sm" onclick="goApp('receipt')">+ 입고 등록</button></div></div>
+      <div class="page-body">
+        <div class="kgrid">
+          <div class="kpi"><div class="kl">전체 원료 종류</div><div class="kv">12 <span class="ku">종</span></div><div class="ks">정상 8 · 주의 3 · 부족 1</div></div>
+          <div class="kpi"><div class="kl">이번 달 총 입고량</div><div class="kv">1,240 <span class="ku">kg</span></div><div class="ks up">▲ 지난달 +12%</div></div>
+          <div class="kpi"><div class="kl">이번 달 총 사용량</div><div class="kv">980 <span class="ku">kg</span></div><div class="ks">생산 차감 기준</div></div>
+          <div class="kpi danger"><div class="kl">알림 발생 항목</div><div class="kv" style="color:var(--red)">4 <span class="ku">건</span></div><div class="ks dn">유통기한 2 · 안전재고 2</div></div>
+        </div>
+        <div class="card">
+          <div class="card-head"><div class="card-title">원료별 재고 현황</div><span style="font-size:11px;color:var(--gray-md)">빨간 세로선 = 안전재고 기준</span></div>
+          <table class="tbl"><colgroup><col style="width:130px"/><col style="width:80px"/><col style="width:80px"/><col style="width:80px"/><col/><col style="width:90px"/><col style="width:55px"/></colgroup>
+            <thead><tr><th>원료명</th><th class="r">입고량</th><th class="r">사용량</th><th class="r">현재고</th><th>재고 바</th><th>추이</th><th>상태</th></tr></thead>
+            <tbody>
+              <tr onclick="goApp('ledger')"><td><div style="font-weight:700">밀가루(중력분)</div><div style="font-size:10px;color:var(--gray)">kg</div></td><td class="r" style="color:var(--teal);font-weight:700">+320</td><td class="r" style="color:var(--purple);font-weight:700">−148</td><td class="r" style="font-weight:700">222</td><td><div class="bar-wrap"><div class="bar-fill" style="width:74%;background:var(--teal)"></div><div class="bar-safe" style="left:33%"></div></div><div style="font-size:10px;color:var(--gray-md)">안전 100kg</div></td><td style="font-size:11px;color:var(--gray-md)">↑ 상승</td><td><span class="bdg b-ok">정상</span></td></tr>
+              <tr style="background:#fff8f8"><td><div style="font-weight:700">설탕(정백당)</div><div style="font-size:10px;color:var(--gray)">kg</div></td><td class="r" style="color:var(--teal);font-weight:700">+80</td><td class="r" style="color:var(--purple);font-weight:700">−72</td><td class="r" style="font-weight:700;color:var(--red)">8</td><td><div class="bar-wrap"><div class="bar-fill" style="width:8%;background:#E24B4A"></div><div class="bar-safe" style="left:20%"></div></div><div style="font-size:10px;color:var(--red)">안전 20kg ↑발주 필요</div></td><td style="font-size:11px;color:var(--red)">↓ 감소</td><td><span class="bdg b-danger">부족</span></td></tr>
+              <tr><td><div style="font-weight:700">버터(무가염)</div><div style="font-size:10px;color:var(--gray)">kg</div></td><td class="r" style="color:var(--teal);font-weight:700">+60</td><td class="r" style="color:var(--purple);font-weight:700">−48</td><td class="r" style="font-weight:700">33</td><td><div class="bar-wrap"><div class="bar-fill" style="width:41%;background:#EF9F27"></div><div class="bar-safe" style="left:25%"></div></div><div style="font-size:10px;color:var(--amber)">안전 20kg</div></td><td style="font-size:11px;color:var(--amber)">↓ 감소</td><td><span class="bdg b-warn">주의</span></td></tr>
+              <tr><td><div style="font-weight:700">달걀(특란)</div><div style="font-size:10px;color:var(--gray)">개</div></td><td class="r" style="color:var(--teal);font-weight:700">+400</td><td class="r" style="color:var(--purple);font-weight:700">−240</td><td class="r" style="font-weight:700">160</td><td><div class="bar-wrap"><div class="bar-fill" style="width:40%;background:var(--teal)"></div><div class="bar-safe" style="left:25%"></div></div><div style="font-size:10px;color:var(--gray-md)">안전 100개</div></td><td style="font-size:11px;color:var(--gray-md)">→ 유지</td><td><span class="bdg b-ok">정상</span></td></tr>
+              <tr><td><div style="font-weight:700">식용유</div><div style="font-size:10px;color:var(--gray)">L</div></td><td class="r" style="color:var(--teal);font-weight:700">+40</td><td class="r" style="color:var(--purple);font-weight:700">−28</td><td class="r" style="font-weight:700">18</td><td><div class="bar-wrap"><div class="bar-fill" style="width:36%;background:#EF9F27"></div><div class="bar-safe" style="left:30%"></div></div><div style="font-size:10px;color:var(--amber)">안전 15L</div></td><td style="font-size:11px;color:var(--amber)">↓ 감소</td><td><span class="bdg b-warn">주의</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── 수불대장 ── -->
+    <div id="app-ledger" class="hidden">
+      <div class="page-head"><div><div class="page-title">원료수불대장</div></div><div class="page-actions"><button class="btn btn-ghost btn-sm">엑셀 다운로드</button><button class="btn btn-primary btn-sm">PDF 출력</button></div></div>
+      <div class="page-body">
+        <div class="fbar"><select class="filter-select"><option>밀가루 (중력분)</option></select><input type="date" class="finput" style="width:140px" value="2025-03-01"/><span style="color:var(--gray-md)">~</span><input type="date" class="finput" style="width:140px" value="2025-03-21"/><select class="filter-select"><option>전체 구분</option><option>입고</option><option>생산사용</option><option>조정</option></select><button class="btn btn-ghost btn-sm">조회</button></div>
+        <div class="kgrid">
+          <div class="kpi"><div class="kl">기초 재고</div><div class="kv">50 <span class="ku">kg</span></div></div>
+          <div class="kpi good"><div class="kl">기간 입고 합계</div><div class="kv" style="color:var(--teal)">+320 <span class="ku">kg</span></div></div>
+          <div class="kpi"><div class="kl">기간 출고 합계</div><div class="kv" style="color:var(--purple)">−148 <span class="ku">kg</span></div></div>
+          <div class="kpi"><div class="kl">기말 재고</div><div class="kv">222 <span class="ku">kg</span></div></div>
+        </div>
+        <div class="card">
+          <table class="tbl"><colgroup><col style="width:80px"/><col style="width:80px"/><col style="width:110px"/><col style="width:100px"/><col style="width:80px"/><col style="width:80px"/><col style="width:80px"/><col style="width:70px"/><col style="width:80px"/></colgroup>
+            <thead><tr><th>날짜</th><th>구분</th><th>원료명</th><th>공급처/배치</th><th class="r">입고량</th><th class="r">출고량</th><th class="r">잔고</th><th>입력</th><th>로트</th></tr></thead>
+            <tbody>
+              <tr><td style="color:var(--gray);font-size:12px">03-01</td><td><span class="bdg b-ok">입고</span></td><td style="font-weight:700">밀가루(중력분)</td><td style="font-size:12px;color:var(--gray)">(주)대한제분</td><td class="r" style="color:var(--teal);font-weight:700">+100</td><td class="r" style="color:var(--gray-md)">—</td><td class="r" style="font-weight:700">150</td><td><span class="tag t-ocr">OCR</span></td><td><span class="lot">LOT-A</span></td></tr>
+              <tr><td style="color:var(--gray);font-size:12px">03-03</td><td><span class="bdg b-purple">생산사용</span></td><td style="font-weight:700">밀가루(중력분)</td><td style="font-size:12px;color:var(--gray)">PROD-005-01</td><td class="r" style="color:var(--gray-md)">—</td><td class="r" style="color:var(--purple);font-weight:700">−30</td><td class="r" style="font-weight:700">120</td><td><span class="tag t-device">장비</span></td><td><span class="lot">LOT-A</span></td></tr>
+              <tr><td style="color:var(--gray);font-size:12px">03-08</td><td><span class="bdg b-ok">입고</span></td><td style="font-weight:700">밀가루(중력분)</td><td style="font-size:12px;color:var(--gray)">(주)대한제분</td><td class="r" style="color:var(--teal);font-weight:700">+80</td><td class="r" style="color:var(--gray-md)">—</td><td class="r" style="font-weight:700">200</td><td><span class="tag t-ocr">OCR</span></td><td><span class="lot">LOT-B</span></td></tr>
+              <tr><td style="color:var(--gray);font-size:12px">03-10</td><td><span class="bdg b-purple">생산사용</span></td><td style="font-weight:700">밀가루(중력분)</td><td style="font-size:12px;color:var(--gray)">PROD-005-02</td><td class="r" style="color:var(--gray-md)">—</td><td class="r" style="color:var(--purple);font-weight:700">−35</td><td class="r" style="font-weight:700">165</td><td><span class="tag t-device">장비</span></td><td><span class="lot">LOT-A/B</span></td></tr>
+              <tr><td style="color:var(--gray);font-size:12px">03-12</td><td><span class="bdg b-warn">조정</span></td><td style="font-weight:700">밀가루(중력분)</td><td style="font-size:12px;color:var(--gray)">실사 조정</td><td class="r" style="color:var(--gray-md)">—</td><td class="r" style="color:var(--amber);font-weight:700">−5</td><td class="r" style="font-weight:700">160</td><td><span class="tag t-manual">수동</span></td><td><span class="lot">—</span></td></tr>
+              <tr><td style="color:var(--gray);font-size:12px">03-15</td><td><span class="bdg b-ok">입고</span></td><td style="font-weight:700">밀가루(중력분)</td><td style="font-size:12px;color:var(--gray)">(주)대한제분</td><td class="r" style="color:var(--teal);font-weight:700">+100</td><td class="r" style="color:var(--gray-md)">—</td><td class="r" style="font-weight:700">260</td><td><span class="tag t-ocr">OCR</span></td><td><span class="lot">LOT-C</span></td></tr>
+              <tr><td style="color:var(--gray);font-size:12px">03-21</td><td><span class="bdg b-ok">입고</span></td><td style="font-weight:700">밀가루(중력분)</td><td style="font-size:12px;color:var(--gray)">(주)대한제분</td><td class="r" style="color:var(--teal);font-weight:700">+40</td><td class="r" style="color:var(--gray-md)">—</td><td class="r" style="font-weight:700;color:var(--teal)">222</td><td><span class="tag t-ocr">OCR</span></td><td><span class="lot">LOT-D</span></td></tr>
+            </tbody>
+          </table>
+          <div class="pg"><span style="font-size:12px;color:var(--gray-md)">기초 50kg + 입고 320kg − 사용 148kg = 기말 <strong>222kg</strong></span><span class="section-link">수불대장 PDF 출력 →</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── 생산 기록 ── -->
+    <div id="app-production" class="hidden">
+      <div class="page-head"><div><div class="page-title">생산 기록</div></div><div class="page-actions"><button class="btn btn-primary btn-sm" style="display:flex;align-items:center;gap:5px"><div class="live-dot"></div>실시간 모니터</button></div></div>
+      <div class="page-body">
+        <div class="kgrid">
+          <div class="kpi"><div class="kl">오늘 생산 배치</div><div class="kv">6 <span class="ku">건</span></div><div class="ks">진행중 1 · 완료 5</div></div>
+          <div class="kpi"><div class="kl">오늘 총 생산량</div><div class="kv">1,240 <span class="ku">개</span></div><div class="ks up">▲ +8%</div></div>
+          <div class="kpi"><div class="kl">이번 주 양품률</div><div class="kv" style="color:var(--teal)">97.4 <span class="ku">%</span></div></div>
+          <div class="kpi"><div class="kl">자동 집계 비율</div><div class="kv">100 <span class="ku">%</span></div><div class="ks" style="color:var(--teal-dk)">모든 배치 장비 수신</div></div>
+        </div>
+        <div class="fbar"><input type="date" class="finput" style="width:140px" value="2025-03-18"/><span style="color:var(--gray-md)">~</span><input type="date" class="finput" style="width:140px" value="2025-03-21"/><select class="filter-select"><option>전체 장비</option><option>출하라인 1호기</option><option>포장라인</option></select><select class="filter-select"><option>전체 상태</option><option>진행 중</option><option>완료</option><option>오류</option></select></div>
+        <div class="card">
+          <table class="tbl"><colgroup><col style="width:150px"/><col style="width:80px"/><col style="width:90px"/><col style="width:80px"/><col style="width:70px"/><col style="width:70px"/><col style="width:65px"/><col style="width:90px"/><col style="width:55px"/><col style="width:65px"/></colgroup>
+            <thead><tr><th>생산 로트</th><th>제품명</th><th>장비</th><th class="r">생산량</th><th class="r">양품</th><th class="r">불량</th><th class="r">양품률</th><th>생산 시간</th><th>입력</th><th>상태</th></tr></thead>
+            <tbody>
+              <tr style="background:var(--teal-lt)"><td><span class="lot">PROD-20250321-005</span></td><td style="font-weight:700">식빵</td><td style="font-size:11px;color:var(--gray)">출하라인 1</td><td class="r" style="color:var(--teal);font-weight:700">1,240</td><td class="r">1,207</td><td class="r" style="color:var(--red)">33</td><td class="r">97.3%</td><td style="font-size:11px;color:var(--gray)">08:00~진행중</td><td><span class="tag t-device">장비</span></td><td><span class="bdg b-run">진행중</span></td></tr>
+              <tr><td><span class="lot">PROD-20250321-004</span></td><td style="font-weight:700">크루아상</td><td style="font-size:11px;color:var(--gray)">포장라인</td><td class="r" style="color:var(--teal);font-weight:700">800</td><td class="r">784</td><td class="r" style="color:var(--red)">16</td><td class="r">98.0%</td><td style="font-size:11px;color:var(--gray)">07:30~12:00</td><td><span class="tag t-device">장비</span></td><td><span class="bdg b-ok">완료</span></td></tr>
+              <tr><td><span class="lot">PROD-20250320-003</span></td><td style="font-weight:700">식빵</td><td style="font-size:11px;color:var(--gray)">출하라인 1</td><td class="r" style="color:var(--teal);font-weight:700">1,180</td><td class="r">1,152</td><td class="r" style="color:var(--red)">28</td><td class="r">97.6%</td><td style="font-size:11px;color:var(--gray)">08:00~14:45</td><td><span class="tag t-device">장비</span></td><td><span class="bdg b-ok">완료</span></td></tr>
+              <tr><td><span class="lot">PROD-20250318-ERR</span></td><td style="font-weight:700">크루아상</td><td style="font-size:11px;color:var(--gray)">냉각라인</td><td class="r" style="color:var(--gray-md)">—</td><td class="r" style="color:var(--gray-md)">—</td><td class="r" style="color:var(--gray-md)">—</td><td class="r" style="color:var(--gray-md)">—</td><td style="font-size:11px;color:var(--red)">장비 수신 실패</td><td><span class="tag t-manual">수동 필요</span></td><td><span class="bdg b-danger">오류</span></td></tr>
+            </tbody>
+          </table>
+          <div class="pg"><span style="font-size:11px;color:var(--gray-md)">총 42건</span><div class="pgb"><div class="pb a">1</div><div class="pb">2</div><div class="pb">3</div><div class="pb">›</div></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── 레시피 관리 ── -->
+    <div id="app-recipe" class="hidden">
+      <div class="page-head"><div><div class="page-title">레시피 관리</div><div class="page-sub">제품별 배합비율 · 생산 시 원료 자동 차감 기준</div></div><div class="page-actions"><button class="btn btn-primary btn-sm">+ 레시피 등록</button></div></div>
+      <div class="page-body">
+        <div class="kgrid">
+          <div class="kpi"><div class="kl">전체 레시피</div><div class="kv">8 <span class="ku">개</span></div><div class="ks">활성 6 · 초안 2</div></div>
+          <div class="kpi"><div class="kl">이번 달 생산 적용</div><div class="kv">5 <span class="ku">개</span></div><div class="ks">총 42회 생산</div></div>
+          <div class="kpi"><div class="kl">사용 원료 종류</div><div class="kv">12 <span class="ku">종</span></div></div>
+          <div class="kpi"><div class="kl">최근 수정</div><div class="kv" style="font-size:16px">식빵 v1.3</div><div class="ks">3일 전</div></div>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px">
+          <div class="card" style="cursor:pointer" onmouseenter="this.style.borderColor='var(--teal)'" onmouseleave="this.style.borderColor='var(--gray-bd)'">
+            <div style="padding:14px 16px 10px;border-bottom:1px solid var(--gray-lt)">
+              <div style="display:flex;gap:6px;margin-bottom:8px"><span class="bdg b-ok">활성</span><span class="bdg b-purple">식빵류</span><span class="bdg b-warn">v1.3</span></div>
+              <div style="font-size:15px;font-weight:700">식빵</div><div class="mono">PRD-001</div>
+            </div>
+            <div style="padding:12px 16px;display:flex;flex-direction:column;gap:6px">
+              <div style="display:flex;justify-content:space-between;font-size:12px"><span style="color:var(--gray)">기준 생산량</span><span style="font-weight:700">20 개</span></div>
+              <div style="display:flex;justify-content:space-between;font-size:12px"><span style="color:var(--gray)">원료 종류</span><span style="font-weight:700">6 종</span></div>
+              <div style="display:flex;justify-content:space-between;font-size:12px"><span style="color:var(--gray)">이번 달 생산</span><span style="font-weight:700">18회 · 22,400개</span></div>
+              <div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:4px"><span class="ing-chip">밀가루 1kg</span><span class="ing-chip">설탕 120g</span><span class="ing-chip">버터 80g</span><span class="ing-chip">달걀 2개</span><span class="ing-chip">+2종</span></div>
+            </div>
+            <div style="padding:10px 16px;border-top:1px solid var(--gray-lt);display:flex;justify-content:space-between;align-items:center"><span style="font-size:11px;color:var(--gray-md)">3일 전 수정</span><div style="display:flex;gap:6px"><button class="btn btn-ghost btn-sm">편집</button><button class="btn btn-outline btn-sm">상세</button></div></div>
+          </div>
+          <div class="card" style="cursor:pointer" onmouseenter="this.style.borderColor='var(--teal)'" onmouseleave="this.style.borderColor='var(--gray-bd)'">
+            <div style="padding:14px 16px 10px;border-bottom:1px solid var(--gray-lt)">
+              <div style="display:flex;gap:6px;margin-bottom:8px"><span class="bdg b-ok">활성</span><span class="bdg b-purple">식빵류</span><span class="bdg b-gray">v1.1</span></div>
+              <div style="font-size:15px;font-weight:700">크루아상</div><div class="mono">PRD-002</div>
+            </div>
+            <div style="padding:12px 16px;display:flex;flex-direction:column;gap:6px">
+              <div style="display:flex;justify-content:space-between;font-size:12px"><span style="color:var(--gray)">기준 생산량</span><span style="font-weight:700">30 개</span></div>
+              <div style="display:flex;justify-content:space-between;font-size:12px"><span style="color:var(--gray)">원료 종류</span><span style="font-weight:700">7 종</span></div>
+              <div style="display:flex;justify-content:space-between;font-size:12px"><span style="color:var(--gray)">이번 달 생산</span><span style="font-weight:700">12회 · 14,400개</span></div>
+              <div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:4px"><span class="ing-chip">밀가루 800g</span><span class="ing-chip">버터 300g</span><span class="ing-chip">우유 200ml</span><span class="ing-chip">+4종</span></div>
+            </div>
+            <div style="padding:10px 16px;border-top:1px solid var(--gray-lt);display:flex;justify-content:space-between;align-items:center"><span style="font-size:11px;color:var(--gray-md)">12일 전 수정</span><div style="display:flex;gap:6px"><button class="btn btn-ghost btn-sm">편집</button><button class="btn btn-outline btn-sm">상세</button></div></div>
+          </div>
+          <div class="card" style="cursor:pointer;border-style:dashed;display:flex;align-items:center;justify-content:center;min-height:200px" onmouseenter="this.style.borderColor='var(--teal)'" onmouseleave="this.style.borderColor='var(--gray-bd)'">
+            <div style="text-align:center;color:var(--gray-md)"><div style="font-size:28px;margin-bottom:8px">+</div><div style="font-size:13px">새 레시피 등록</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── 공급업체 ── -->
+    <div id="app-supplier" class="hidden">
+      <div class="page-head"><div><div class="page-title">공급업체 관리</div><div class="page-sub">OCR 자동매핑 기준 · 입고 거래처 마스터</div></div><div class="page-actions"><button class="btn btn-primary btn-sm">+ 공급업체 등록</button></div></div>
+      <div class="page-body">
+        <div class="kgrid">
+          <div class="kpi"><div class="kl">전체 공급업체</div><div class="kv">14 <span class="ku">개사</span></div><div class="ks">활성 11 · 비활성 3</div></div>
+          <div class="kpi"><div class="kl">이번 달 거래</div><div class="kv">6 <span class="ku">개사</span></div><div class="ks">총 16건 입고</div></div>
+          <div class="kpi"><div class="kl">OCR 매핑 완료</div><div class="kv">11 <span class="ku">개사</span></div></div>
+          <div class="kpi"><div class="kl">신규 등록</div><div class="kv">1 <span class="ku">개사</span></div><div class="ks">이번 달 추가</div></div>
+        </div>
+        <div class="fbar"><input type="text" class="search-input" placeholder="업체명 · 사업자번호 검색"/><select class="filter-select"><option>전체 상태</option><option>활성</option><option>비활성</option></select><select class="filter-select"><option>전체 취급품목</option><option>밀가루류</option><option>유제품</option></select></div>
+        <div class="card">
+          <table class="tbl"><colgroup><col style="width:200px"/><col style="width:120px"/><col style="width:120px"/><col style="width:110px"/><col style="width:80px"/><col style="width:80px"/><col style="width:55px"/><col style="width:100px"/></colgroup>
+            <thead><tr><th>업체명</th><th>사업자번호</th><th>주요 취급품목</th><th class="r">이번 달 입고</th><th class="r">최근 거래일</th><th>OCR 매핑</th><th>상태</th><th></th></tr></thead>
+            <tbody>
+              <tr><td><div style="display:flex;align-items:center;gap:10px"><div class="avatar" style="width:32px;height:32px;background:var(--teal-lt);color:#085041;font-size:11px">대한</div><div><div style="font-weight:700">(주)대한제분</div><div class="mono">123-45-67890</div></div></div></td><td class="mono">123-45-67890</td><td style="font-size:12px">밀가루, 강력분</td><td class="r" style="font-weight:700">3건·280kg</td><td class="r" style="color:var(--gray);font-size:12px">03-21</td><td><span style="font-size:10px;font-weight:700;padding:2px 7px;border-radius:3px;background:var(--teal-lt);color:#085041;border:1px solid var(--teal-md)">매핑됨</span></td><td><span class="bdg b-ok">활성</span></td><td style="text-align:right"><div style="display:flex;gap:5px;justify-content:flex-end"><button class="btn btn-ghost btn-sm">편집</button><button class="btn btn-outline btn-sm">상세</button></div></td></tr>
+              <tr><td><div style="display:flex;align-items:center;gap:10px"><div class="avatar" style="width:32px;height:32px;background:var(--purple-lt);color:#3C3489;font-size:11px">삼양</div><div><div style="font-weight:700">삼양사</div><div class="mono">234-56-78901</div></div></div></td><td class="mono">234-56-78901</td><td style="font-size:12px">설탕, 포도당</td><td class="r" style="font-weight:700">2건·130kg</td><td class="r" style="color:var(--gray);font-size:12px">03-21</td><td><span style="font-size:10px;font-weight:700;padding:2px 7px;border-radius:3px;background:var(--teal-lt);color:#085041;border:1px solid var(--teal-md)">매핑됨</span></td><td><span class="bdg b-ok">활성</span></td><td style="text-align:right"><div style="display:flex;gap:5px;justify-content:flex-end"><button class="btn btn-ghost btn-sm">편집</button><button class="btn btn-outline btn-sm">상세</button></div></td></tr>
+              <tr><td><div style="display:flex;align-items:center;gap:10px"><div class="avatar" style="width:32px;height:32px;background:#E6F1FB;color:#0C447C;font-size:11px">서울</div><div><div style="font-weight:700">서울우유협동조합</div><div class="mono">345-67-89012</div></div></div></td><td class="mono">345-67-89012</td><td style="font-size:12px">버터, 우유</td><td class="r" style="font-weight:700">2건·60kg</td><td class="r" style="color:var(--gray);font-size:12px">03-20</td><td><span style="font-size:10px;font-weight:700;padding:2px 7px;border-radius:3px;background:var(--teal-lt);color:#085041;border:1px solid var(--teal-md)">매핑됨</span></td><td><span class="bdg b-ok">활성</span></td><td style="text-align:right"><div style="display:flex;gap:5px;justify-content:flex-end"><button class="btn btn-ghost btn-sm">편집</button><button class="btn btn-outline btn-sm">상세</button></div></td></tr>
+              <tr><td><div style="display:flex;align-items:center;gap:10px"><div class="avatar" style="width:32px;height:32px;background:var(--amber-lt);color:#633806;font-size:11px">한국</div><div><div style="font-weight:700">한국식품원료(주)</div><div style="display:flex;align-items:center;gap:4px" class="mono">567-89-01234 <span class="bdg b-purple" style="font-size:9px">신규</span></div></div></div></td><td class="mono">567-89-01234</td><td style="font-size:12px">식용유, 참기름</td><td class="r" style="font-weight:700">1건·40L</td><td class="r" style="color:var(--gray);font-size:12px">03-15</td><td><span style="font-size:10px;font-weight:700;padding:2px 7px;border-radius:3px;background:var(--amber-lt);color:#633806;border:1px solid var(--amber-md)">매핑 필요</span></td><td><span class="bdg b-ok">활성</span></td><td style="text-align:right"><div style="display:flex;gap:5px;justify-content:flex-end"><button class="btn btn-ghost btn-sm">편집</button><button class="btn btn-outline btn-sm">상세</button></div></td></tr>
+            </tbody>
+          </table>
+          <div class="pg"><span style="font-size:11px;color:var(--gray-md)">총 14개사</span><div class="pgb"><div class="pb a">1</div><div class="pb">2</div><div class="pb">›</div></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── 장비 관리 ── -->
+    <div id="app-device" class="hidden">
+      <div class="page-head"><div><div class="page-title">장비 관리</div><div class="page-sub">생산 데이터 수신 장비 · API Key 관리</div></div><div class="page-actions"><button class="btn btn-primary btn-sm">+ 장비 등록</button></div></div>
+      <div class="page-body">
+        <div class="kgrid">
+          <div class="kpi"><div class="kl">등록 장비</div><div class="kv">4 <span class="ku">대</span></div><div class="ks">가동 2 · 대기 1 · 오류 1</div></div>
+          <div class="kpi"><div class="kl">오늘 수신</div><div class="kv">18 <span class="ku">건</span></div><div class="ks">정상 17 · 실패 1</div></div>
+          <div class="kpi"><div class="kl">오늘 자동 집계</div><div class="kv">3,220 <span class="ku">개</span></div><div class="ks" style="color:var(--teal-dk)">전체의 100%</div></div>
+          <div class="kpi danger"><div class="kl">오류 장비</div><div class="kv" style="color:var(--red)">1 <span class="ku">대</span></div><div class="ks dn">냉각라인 — 즉시 확인</div></div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+          <!-- 출하라인 1호기 -->
+          <div class="card" style="border:2px solid var(--teal)">
+            <div style="padding:14px 16px 12px;display:flex;align-items:flex-start;justify-content:space-between;border-bottom:1px solid var(--gray-lt)">
+              <div style="display:flex;align-items:flex-start;gap:12px">
+                <div style="width:42px;height:42px;border-radius:10px;background:var(--teal-lt);display:flex;align-items:center;justify-content:center"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--teal)" stroke-width="1.8" stroke-linecap="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/></svg></div>
+                <div><div style="font-size:14px;font-weight:700">출하라인 1호기</div><div class="mono">device-001</div></div>
+              </div>
+              <div style="display:flex;align-items:center;gap:6px"><div class="dot-run" style="width:8px;height:8px;border-radius:50%;flex-shrink:0"></div><span class="bdg b-run">가동 중</span></div>
+            </div>
+            <div style="padding:12px 16px;display:flex;flex-direction:column;gap:7px">
+              <div style="display:flex;justify-content:space-between;font-size:12px"><span style="color:var(--gray)">연결 레시피</span><span style="font-weight:700">식빵 (PRD-001)</span></div>
+              <div style="display:flex;justify-content:space-between;font-size:12px"><span style="color:var(--gray)">오늘 수신</span><span style="font-weight:700;color:var(--teal)">6건 · 1,240개</span></div>
+              <div style="display:flex;justify-content:space-between;font-size:12px"><span style="color:var(--gray)">현재 불량률</span><span style="font-weight:700">2.7% <span style="color:var(--teal-dk);font-size:10px">정상</span></span></div>
+              <div class="recv-bar"><div class="recv-fill"></div></div>
+            </div>
+            <div style="padding:10px 16px;border-top:1px solid var(--gray-lt);display:flex;justify-content:space-between;align-items:center"><span style="font-size:11px;color:var(--gray-md)">마지막 수신: 방금 전</span><div style="display:flex;gap:6px"><button class="btn btn-ghost btn-sm">API Key</button><button class="btn btn-outline btn-sm">상세</button></div></div>
+          </div>
+          <!-- 냉각라인 오류 -->
+          <div class="card" style="border:2px solid var(--red-md)">
+            <div style="padding:14px 16px 12px;display:flex;align-items:flex-start;justify-content:space-between;border-bottom:1px solid var(--gray-lt)">
+              <div style="display:flex;align-items:flex-start;gap:12px">
+                <div style="width:42px;height:42px;border-radius:10px;background:var(--red-lt);display:flex;align-items:center;justify-content:center"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--red)" stroke-width="1.8" stroke-linecap="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div>
+                <div><div style="font-size:14px;font-weight:700;color:var(--red)">냉각라인</div><div class="mono">device-004</div></div>
+              </div>
+              <div style="display:flex;align-items:center;gap:6px"><div class="dot-err" style="width:8px;height:8px;border-radius:50%;flex-shrink:0"></div><span class="bdg b-danger">오류</span></div>
+            </div>
+            <div style="padding:12px 16px;display:flex;flex-direction:column;gap:7px">
+              <div style="background:var(--red-lt);border:1px solid var(--red-md);border-radius:var(--radius-sm);padding:9px 12px;font-size:12px;color:#791F1F"><div style="font-weight:700;margin-bottom:3px">연결 오류 — API 인증 실패</div><div style="font-size:11px">오늘 11:24부터 데이터 수신 중단</div></div>
+              <div style="display:flex;justify-content:space-between;font-size:12px"><span style="color:var(--gray)">마지막 정상 수신</span><span style="font-weight:700;color:var(--red)">오늘 11:22</span></div>
+            </div>
+            <div style="padding:10px 16px;border-top:1px solid var(--gray-lt);display:flex;justify-content:space-between;align-items:center"><span style="font-size:11px;color:var(--red)">수신 중단 3시간</span><div style="display:flex;gap:6px"><button class="btn btn-danger btn-sm">Key 재발급</button><button class="btn btn-outline btn-sm">상세</button></div></div>
+          </div>
+        </div>
+        <!-- API 연동 안내 -->
+        <div class="card"><div class="card-head"><div class="card-title">API 연동 방법</div></div><div class="card-body">
+          <div style="font-size:12px;color:var(--gray);margin-bottom:10px">장비 제어 소프트웨어에서 생산 완료 시 아래 엔드포인트로 POST 요청을 보내세요</div>
+          <div style="background:var(--gray-lt);border:1px solid var(--gray-bd);border-radius:var(--radius-sm);padding:10px 14px;font-family:var(--mono);font-size:12px;color:var(--gray);margin-bottom:10px">POST &nbsp;<span style="color:var(--teal);font-weight:700">https://api.foodly.kr/v1/equipment/production</span><br/>x-device-api-key: <span style="color:var(--purple)">fsk_live_••••••••••••••</span></div>
+          <div style="background:var(--gray-lt);border:1px solid var(--gray-bd);border-radius:var(--radius-sm);padding:10px 14px;font-family:var(--mono);font-size:11px;color:var(--gray);line-height:1.9">{"device_id": <span style="color:var(--teal)">"device-001"</span>, "product_code": <span style="color:var(--teal)">"PRD-001"</span>, "produced_quantity": <span style="color:var(--amber)">500</span>, "defects": [{"type": <span style="color:var(--teal)">"중량미달"</span>, "quantity": <span style="color:var(--amber)">12</span>}]}</div>
+        </div></div>
+      </div>
+    </div>
+
+    <!-- ── 수동 입고 ── -->
+    <div id="app-receipt-manual" class="hidden">
+      <div class="page-head"><div><div class="page-title">원료 입고 — 수동 입력</div></div><div class="page-actions"><button class="btn btn-ghost btn-sm" onclick="goApp('receipt')">← 취소</button><button class="btn btn-primary btn-sm" onclick="goApp('receipt-done')">입고 등록</button></div></div>
+      <div class="page-body">
+        <div class="card"><div class="card-head"><div class="card-title">입고 정보 입력</div></div><div class="card-body" style="display:flex;flex-direction:column;gap:12px">
+          <div class="frow"><div class="fl"><div class="fl-lbl">공급업체 <span class="req">*</span></div><select><option>-- 선택 --</option><option>(주)대한제분</option><option>삼양사</option><option>서울우유협동조합</option></select></div><div class="fl"><div class="fl-lbl">납품일자 <span class="req">*</span></div><input class="finput" type="date" value="2025-03-21"/></div></div>
+          <div class="frow"><div class="fl"><div class="fl-lbl">원료명 <span class="req">*</span></div><select><option>밀가루 (중력분)</option><option>설탕 (정백당)</option><option>버터 (무가염)</option></select></div><div class="fl"><div class="fl-lbl">수량 <span class="req">*</span></div><input class="finput" type="number" placeholder="0" style="text-align:right"/></div></div>
+          <div class="frow"><div class="fl"><div class="fl-lbl">단가 (원)</div><input class="finput" type="number" placeholder="0" style="text-align:right"/></div><div class="fl"><div class="fl-lbl">유통기한</div><input class="finput" type="date"/></div></div>
+          <div class="fl"><div class="fl-lbl">로트번호</div><input class="finput" placeholder="LOT 번호 입력"/></div>
+        </div></div>
+      </div>
+    </div>
+
+  </main>
+</div>
+</div>
+
+<script>
+// ══════════════════════════════
+// ROUTING
+// ══════════════════════════════
+const allScreens = ['login','signup','onboard1','onboard2','onboard3','app'];
+const allAppScreens = ['dashboard','receipt','receipt-ocr','receipt-done','receipt-manual','stock','ledger','production','recipe','supplier','device'];
+const navMap = {dashboard:'nav-dashboard',receipt:'nav-receipt','receipt-ocr':'nav-receipt','receipt-done':'nav-receipt','receipt-manual':'nav-receipt',stock:'nav-stock',ledger:'nav-ledger',production:'nav-production',recipe:'nav-recipe',supplier:'nav-supplier',device:'nav-device'};
+
+function go(screen){
+  allScreens.forEach(s=>{ const el=document.getElementById('screen-'+s); if(el) el.classList.add('hidden'); });
+  const target = document.getElementById('screen-'+screen);
+  if(target) target.classList.remove('hidden');
+}
+
+function goApp(page){
+  document.getElementById('screen-app').classList.remove('hidden');
+  allScreens.filter(s=>s!=='app').forEach(s=>{ const el=document.getElementById('screen-'+s); if(el) el.classList.add('hidden'); });
+  allAppScreens.forEach(p=>{ const el=document.getElementById('app-'+p); if(el) el.classList.add('hidden'); });
+  const target = document.getElementById('app-'+page);
+  if(target) target.classList.remove('hidden');
+  // nav active
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  const navEl = navMap[page] ? document.getElementById(navMap[page]) : null;
+  if(navEl) navEl.classList.add('active');
+  // init chart if needed
+  if(page==='dashboard') setTimeout(initDashChart, 50);
+}
+
+// ══════════════════════════════
+// AUTH
+// ══════════════════════════════
+function doLogin(){
+  const email = document.getElementById('login-email').value;
+  const pw = document.getElementById('login-pw').value;
+  const errEl = document.getElementById('login-err');
+  if(!email || !pw){ errEl.classList.remove('hidden'); document.getElementById('login-pw').classList.add('error'); return; }
+  errEl.classList.add('hidden');
+  goApp('dashboard');
+}
+
+function togglePw(inputId, btn){
+  const inp = document.getElementById(inputId);
+  if(inp.type==='password'){ inp.type='text'; btn.textContent='숨기기'; }
+  else{ inp.type='password'; btn.textContent='표시'; }
+}
+
+function selectHaccp(val){
+  const no = document.getElementById('h-no');
+  const yes = document.getElementById('h-yes');
+  if(val==='no'){
+    no.style.borderColor='var(--teal)'; no.style.background='var(--teal-lt)';
+    yes.style.borderColor='var(--gray-bd)'; yes.style.background='';
+    no.querySelector('div').style.color='var(--teal-dk)';
+    yes.querySelector('div').style.color='';
+  } else {
+    yes.style.borderColor='var(--teal)'; yes.style.background='var(--teal-lt)';
+    no.style.borderColor='var(--gray-bd)'; no.style.background='';
+    yes.querySelector('div').style.color='var(--teal-dk)';
+    no.querySelector('div').style.color='';
+  }
+}
+
+// ══════════════════════════════
+// ONBOARDING TABS
+// ══════════════════════════════
+function obTab(tab){
+  const tabIng = document.getElementById('ob-ing');
+  const tabSup = document.getElementById('ob-sup');
+  const btnIng = document.getElementById('ob-tab-ing');
+  const btnSup = document.getElementById('ob-tab-sup');
+  if(tab==='ing'){
+    tabIng.classList.remove('hidden'); tabSup.classList.add('hidden');
+    btnIng.classList.add('active'); btnSup.classList.remove('active');
+  } else {
+    tabSup.classList.remove('hidden'); tabIng.classList.add('hidden');
+    btnSup.classList.add('active'); btnIng.classList.remove('active');
+  }
+}
+
+function addObIng(){
+  const div = document.createElement('div');
+  div.style.cssText = 'display:grid;grid-template-columns:1fr 80px 80px 36px;gap:8px;margin-bottom:8px;align-items:center';
+  div.innerHTML = `<input class="finput" style="padding:7px 9px;font-size:12px" type="text" placeholder="원료명 입력"/><select style="height:34px;font-size:12px"><option>kg</option><option>g</option><option>L</option><option>개</option></select><input class="finput" style="padding:7px 9px;font-size:12px;text-align:right" type="number" placeholder="0"/><button onclick="this.closest('div').remove()" style="width:28px;height:28px;border-radius:5px;border:1px solid var(--gray-bd);background:var(--gray-lt);cursor:pointer;color:var(--gray);font-size:14px">×</button>`;
+  document.getElementById('ob-ing-list').appendChild(div);
+}
+
+function addObSup(){
+  const div = document.createElement('div');
+  div.style.cssText = 'display:grid;grid-template-columns:1fr 1fr 36px;gap:8px;margin-bottom:8px;align-items:center';
+  div.innerHTML = `<input class="finput" style="padding:7px 9px;font-size:12px" type="text" placeholder="업체명"/><input class="finput" style="padding:7px 9px;font-size:11px;font-family:var(--mono)" type="text" placeholder="000-00-00000"/><button onclick="this.closest('div').remove()" style="width:28px;height:28px;border-radius:5px;border:1px solid var(--gray-bd);background:var(--gray-lt);cursor:pointer;color:var(--gray);font-size:14px">×</button>`;
+  document.getElementById('ob-sup-list').appendChild(div);
+}
+
+// ══════════════════════════════
+// CHARTS
+// ══════════════════════════════
+let dashChartInst = null;
+function initDashChart(){
+  const canvas = document.getElementById('dash-chart');
+  if(!canvas) return;
+  if(dashChartInst) dashChartInst.destroy();
+  dashChartInst = new Chart(canvas,{
+    type:'bar',
+    data:{
+      labels:['월','화','수','목','금','토','오늘'],
+      datasets:[
+        {label:'양품',data:[980,1050,1120,890,1200,1180,1207],backgroundColor:'#5DCAA5',borderRadius:3,stack:'s'},
+        {label:'불량',data:[20,30,25,40,18,22,33],backgroundColor:'#F09595',borderRadius:3,stack:'s'}
+      ]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false}},
+      scales:{
+        x:{stacked:true,grid:{display:false},ticks:{font:{size:11},color:'#888780'}},
+        y:{stacked:true,grid:{color:'rgba(0,0,0,.05)'},ticks:{font:{size:11},color:'#888780'}}
+      }
+    }
+  });
+}
+
+// ══════════════════════════════
+// LIVE COUNT UPDATE
+// ══════════════════════════════
+let prodCount = 1240;
+setInterval(()=>{
+  const el = document.querySelector('#app-dashboard .kv');
+  if(el && document.getElementById('app-dashboard') && !document.getElementById('app-dashboard').classList.contains('hidden')){
+    prodCount += Math.floor(Math.random()*3);
+    el.innerHTML = prodCount.toLocaleString() + ' <span class="ku">개</span>';
+  }
+}, 3000);
+
+// ══════════════════════════════
+// MOBILE NAV
+// ══════════════════════════════
+function toggleNav(){
+  document.getElementById('app-nav').classList.toggle('open');
+  document.getElementById('nav-overlay').classList.toggle('open');
+}
+function closeNav(){
+  document.getElementById('app-nav').classList.remove('open');
+  document.getElementById('nav-overlay').classList.remove('open');
+}
+
+// Patch goApp to auto-close nav on mobile
+const _goApp = goApp;
+goApp = function(page){
+  _goApp(page);
+  closeNav();
+};
+
+// ══════════════════════════════
+// INIT
+// ══════════════════════════════
+go('login');
+</script>
+</body>
+</html>
