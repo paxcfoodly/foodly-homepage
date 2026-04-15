@@ -1,2 +1,2 @@
-# foodly-hampage
+# foodly-homepage
 homepage
