@@ -33,22 +33,24 @@ export function Nav() {
   return (
     <>
       <nav
-        className={`fixed inset-x-0 top-0 z-[100] flex h-16 items-center justify-between px-[60px] transition-[background,box-shadow] duration-300 max-[1024px]:px-8 max-[767px]:h-14 max-[767px]:px-5 ${
+        className={`fixed inset-x-0 top-0 z-[100] grid h-16 grid-cols-[1fr_auto_1fr] items-center px-[60px] transition-[background,box-shadow] duration-300 max-[1024px]:px-8 max-[767px]:flex max-[767px]:h-14 max-[767px]:justify-between max-[767px]:px-5 ${
           scrolled ? 'bg-cream/95 shadow-[0_1px_0_var(--color-stone-light)] backdrop-blur-md' : ''
         }`}
       >
-        <Link href="/" className="no-underline">
-          <div className="font-serif text-2xl tracking-[-0.3px] text-ink">
-            food<span className="text-teal">ly</span>
-          </div>
-        </Link>
+        <div className="justify-self-start">
+          <Link href="/" className="no-underline">
+            <div className="text-2xl font-black tracking-tight text-ink">
+              food<span className="text-teal">ly</span>
+            </div>
+          </Link>
+        </div>
 
-        <div className="flex items-center gap-9 max-[767px]:hidden">
+        <div className="flex items-center gap-9 justify-self-center max-[767px]:hidden">
           {LINKS.map((l) => (
             <a
               key={l.href}
               href={l.href}
-              className="text-sm font-medium text-stone no-underline transition-colors hover:text-ink"
+              className="text-[14px] font-medium text-stone no-underline transition-colors hover:text-ink"
             >
               {l.label}
             </a>
@@ -57,13 +59,13 @@ export function Nav() {
             href="https://foodly-fe.vercel.app"
             target="_blank"
             rel="noopener noreferrer"
-            className="text-sm font-medium text-stone no-underline transition-colors hover:text-ink"
+            className="text-[14px] font-medium text-stone no-underline transition-colors hover:text-ink"
           >
             Foodly-MES
           </a>
         </div>
 
-        <div className="flex items-center gap-2.5 max-[767px]:hidden">
+        <div className="flex items-center gap-2.5 justify-self-end max-[767px]:hidden">
           <a
             href="#"
             className="rounded-full border border-stone-light px-[18px] py-2 text-[13px] font-medium text-ink no-underline transition-all hover:border-teal hover:text-teal"
@@ -72,7 +74,7 @@ export function Nav() {
           </a>
           <Link
             href="/trial"
-            className="rounded-full bg-teal px-5 py-[9px] text-[13px] font-bold text-white no-underline transition-all hover:-translate-y-px hover:bg-teal-dark hover:shadow-[0_4px_16px_rgba(29,158,117,0.35)]"
+            className="rounded-full bg-teal px-5 py-[9px] text-[13px] font-semibold text-white no-underline transition-all hover:-translate-y-px hover:bg-teal-dark hover:shadow-[0_4px_16px_rgba(29,158,117,0.35)]"
           >
             무료 체험 →
           </Link>
@@ -81,7 +83,7 @@ export function Nav() {
         <button
           aria-label="메뉴"
           onClick={() => setMenuOpen((v) => !v)}
-          className="z-[200] hidden flex-col gap-[5px] border-none bg-transparent p-1 cursor-pointer max-[767px]:flex"
+          className="z-[200] hidden cursor-pointer flex-col gap-[5px] border-none bg-transparent p-1 max-[767px]:flex"
         >
           <span
             className={`block h-0.5 w-[22px] rounded-[2px] bg-ink transition-all ${

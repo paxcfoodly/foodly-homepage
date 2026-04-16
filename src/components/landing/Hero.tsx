@@ -33,10 +33,13 @@ export function Hero() {
       </h1>
 
       <p
-        className="mb-9 max-w-[640px] animate-fade-up text-center font-normal leading-[1.6] text-stone"
-        style={{ fontSize: 'clamp(18px,2.5vw,22px)', animationDelay: '0.3s' }}
+        className="mb-9 max-w-[680px] animate-fade-up text-center font-normal leading-[1.65] text-stone"
+        style={{ fontSize: 'clamp(17px,2vw,20px)', animationDelay: '0.3s' }}
       >
-        거래명세서 사진 한 장으로 입고 완료. 장비 데이터 자동 수신. 식약처 수불대장 원클릭 출력.
+        거래명세서 사진 한 장으로 입고 완료.
+        <br className="max-[640px]:hidden" />
+        <span className="max-[640px]:hidden"> </span>
+        장비 데이터는 자동 수신, 식약처 수불대장은 원클릭 출력.
       </p>
 
       <div
