@@ -1,4 +1,5 @@
-@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=DM+Serif+Display:ital@0;1&family=JetBrains+Mono:wght@400;500&display=swap');
+@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css');
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap');
 @import 'tailwindcss';
 
 /* ══════════════════════════════
@@ -24,10 +25,17 @@
   --color-amber: #d4860a;
   --color-amber-light: #fdf3e3;
 
-  /* Typography */
-  --font-sans: 'Noto Sans KR', sans-serif;
-  --font-serif: 'DM Serif Display', serif;
-  --font-mono: 'JetBrains Mono', monospace;
+  /* Typography — single Pretendard family, weight-driven hierarchy.
+     `--font-serif` repointed to Pretendard so existing `font-serif`
+     utilities continue to compile; visual differentiation now comes
+     from weight + tracking, not from family. */
+  --font-sans:
+    'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, system-ui, Roboto,
+    'Helvetica Neue', 'Segoe UI', 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif;
+  --font-serif:
+    'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, system-ui, Roboto,
+    'Helvetica Neue', 'Segoe UI', 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
 
   /* Animations */
   --animate-fade-up: fade-up 0.9s ease both;
@@ -134,6 +142,25 @@ body {
   background: var(--color-cream);
   color: var(--color-ink);
   overflow-x: hidden;
+  font-feature-settings: 'ss01', 'cv11';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  letter-spacing: -0.01em;
+}
+
+/* Pretendard at display sizes wants tighter tracking. */
+h1,
+h2,
+h3 {
+  letter-spacing: -0.025em;
+}
+
+/* `<em>` is used decoratively across sections — strip italics
+   (Korean italics are synthetic and look unprofessional) and
+   express emphasis through weight instead. */
+em {
+  font-style: normal;
+  font-weight: 800;
 }
 
 /* ── Scrollbar ── */
