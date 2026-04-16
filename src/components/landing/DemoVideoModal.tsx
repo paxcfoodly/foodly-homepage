@@ -22,7 +22,7 @@ export function DemoVideoModal({ onClose }: DemoVideoModalProps) {
   return (
     <div
       onClick={onClose}
-      className="fixed inset-0 z-[200] flex animate-fade-in items-center justify-center bg-ink/85 p-6 backdrop-blur-sm"
+      className="fixed inset-0 z-[200] flex animate-fade-in items-center justify-center bg-surface-dark/85 p-6 backdrop-blur-sm"
     >
       <div
         onClick={(e) => e.stopPropagation()}

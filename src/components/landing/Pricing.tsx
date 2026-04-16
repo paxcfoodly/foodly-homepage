@@ -94,7 +94,7 @@ function PlanCard({ plan }: { plan: Plan }) {
   const base =
     'relative flex h-full flex-col p-10 transition-transform max-[767px]:p-7 max-[1024px]:rounded-2xl max-[1024px]:border max-[1024px]:border-stone-light';
   const cardBg = plan.featured
-    ? 'bg-ink'
+    ? 'bg-surface-dark'
     : 'bg-white hover:-translate-y-1 hover:shadow-[0_20px_60px_rgba(0,0,0,0.1)]';
   const nameCls = plan.featured ? 'text-white/80' : 'text-stone';
   const priceCls = plan.featured ? 'text-white' : 'text-ink';

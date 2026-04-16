@@ -26,7 +26,7 @@ export function Workflow() {
   }, []);
 
   return (
-    <section id="workflow" className="relative overflow-hidden bg-ink">
+    <section id="workflow" className="relative overflow-hidden bg-surface-dark">
       <div
         className="absolute inset-x-0 top-0 h-[60px] bg-cream max-[767px]:h-10"
         style={{ clipPath: 'ellipse(55% 100% at 50% 0%)' }}

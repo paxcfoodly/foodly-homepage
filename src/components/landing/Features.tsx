@@ -144,7 +144,7 @@ function FeatureBlock({
 
 function MockHeader({ title, badge }: { title: string; badge?: React.ReactNode }) {
   return (
-    <div className="flex items-center gap-2 bg-ink px-4 py-3">
+    <div className="flex items-center gap-2 bg-surface-dark px-4 py-3">
       <span className="h-[9px] w-[9px] rounded-full bg-[#FF5F57]" />
       <span className="h-[9px] w-[9px] rounded-full bg-[#FEBC2E]" />
       <span className="h-[9px] w-[9px] rounded-full bg-[#28C840]" />
@@ -315,7 +315,7 @@ function Td({
 function LedgerMock() {
   return (
     <div className="overflow-hidden rounded-xl bg-white font-sans">
-      <div className="flex items-center gap-2 bg-ink px-4 py-3">
+      <div className="flex items-center gap-2 bg-surface-dark px-4 py-3">
         <span className="h-[9px] w-[9px] rounded-full bg-[#FF5F57]" />
         <span className="h-[9px] w-[9px] rounded-full bg-[#FEBC2E]" />
         <span className="h-[9px] w-[9px] rounded-full bg-[#28C840]" />

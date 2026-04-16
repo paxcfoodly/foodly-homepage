@@ -32,7 +32,7 @@ const COLUMNS: { title: string; links: { href: string; label: string }[] }[] = [
 
 export function Footer() {
   return (
-    <footer className="border-t border-white/[0.07] bg-ink px-[60px] pb-10 pt-[60px] max-[767px]:px-5 max-[767px]:pb-8 max-[767px]:pt-12">
+    <footer className="border-t border-white/[0.07] bg-surface-dark px-[60px] pb-10 pt-[60px] max-[767px]:px-5 max-[767px]:pb-8 max-[767px]:pt-12">
       <div className="mb-13 grid grid-cols-[2fr_1fr_1fr_1fr] gap-[60px] max-[1024px]:grid-cols-2 max-[1024px]:gap-10 max-[767px]:grid-cols-1 max-[767px]:gap-8">
         <div>
           <div className="mb-3.5 flex items-center gap-2">
