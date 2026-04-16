@@ -1,5 +1,5 @@
 @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css');
-@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Geist:wght@400..900&family=JetBrains+Mono:wght@400;500&display=swap');
 @import 'tailwindcss';
 
 /* ══════════════════════════════
@@ -45,6 +45,11 @@
     'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, system-ui, Roboto,
     'Helvetica Neue', 'Segoe UI', 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif;
   --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  /* Logo wordmark — Geist Sans (Vercel) gives the brand a corporate
+     tech feel distinct from body text. Used only for the foodly
+     wordmark in the nav and footer; does not affect Korean copy. */
+  --font-display: 'Geist', 'Pretendard Variable', system-ui, sans-serif;
 
   /* Animations */
   --animate-fade-up: fade-up 0.9s ease both;

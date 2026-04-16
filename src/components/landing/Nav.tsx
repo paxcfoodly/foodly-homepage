@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
-import { BrandMark } from './BrandMark';
+import { Logo } from './Logo';
 
 const LINKS = [
   { href: '#features', label: '기능' },
@@ -39,11 +39,8 @@ export function Nav() {
         }`}
       >
         <div className="justify-self-start">
-          <Link href="/" className="flex items-center gap-2 no-underline">
-            <BrandMark size={26} />
-            <div className="text-[24px] font-black tracking-tight text-ink">
-              food<span className="text-teal">ly</span>
-            </div>
+          <Link href="/" aria-label="Foodly 홈" className="no-underline">
+            <Logo variant="dark" size={26} />
           </Link>
         </div>
 

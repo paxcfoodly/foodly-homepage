@@ -1,4 +1,4 @@
-import { BrandMark } from './BrandMark';
+import { Logo } from './Logo';
 
 const COLUMNS: { title: string; links: { href: string; label: string }[] }[] = [
   {
@@ -35,11 +35,8 @@ export function Footer() {
     <footer className="border-t border-white/[0.07] bg-surface-dark px-[60px] pb-10 pt-[60px] max-[767px]:px-5 max-[767px]:pb-8 max-[767px]:pt-12">
       <div className="mb-13 grid grid-cols-[2fr_1fr_1fr_1fr] gap-[60px] max-[1024px]:grid-cols-2 max-[1024px]:gap-10 max-[767px]:grid-cols-1 max-[767px]:gap-8">
         <div>
-          <div className="mb-3.5 flex items-center gap-2">
-            <BrandMark size={26} />
-            <span className="text-2xl font-black tracking-tight text-white">
-              food<span className="text-teal">ly</span>
-            </span>
+          <div className="mb-3.5">
+            <Logo variant="light" size={26} />
           </div>
           <p className="max-w-[280px] text-sm leading-[1.7] text-white/40 max-[767px]:max-w-none">
             소규모 식품 제조업체를 위한 원료수불·재고·생산 통합 관리 플랫폼. OCR과 장비 연동으로 수기 관리를 완전히 대체합니다.
