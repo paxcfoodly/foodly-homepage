@@ -23,7 +23,7 @@ export function Logo({ variant = 'dark', size = 28 }: LogoProps) {
         className={`font-display font-extrabold leading-none ${wordmarkColor}`}
         style={{ fontSize: `${wordmarkSize}px`, letterSpacing: '-0.045em' }}
       >
-        foodly
+        food<span className="text-teal">ly</span>
       </span>
     </span>
   );
